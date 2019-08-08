@@ -1,6 +1,6 @@
 <?php
-    // показывать или нет выполненные задачи
-    $show_complete_tasks = rand(0, 1);
+// показывать или нет выполненные задачи
+$show_complete_tasks = rand(0, 1);
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -72,7 +72,7 @@
 
                     <label class="checkbox">
                         <!--добавить сюда атрибут "checked", если переменная $show_complete_tasks равна единице-->
-                        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?php if ($show_complete_tasks): ?> checked <?php endif; ?>>
+                        <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?= (($show_complete_tasks === 1) ? "checked" : "") ?>>
                         <span class="checkbox__text">Показывать выполненные</span>
                     </label>
                 </div>
@@ -93,7 +93,7 @@
                         <td class="task__date"></td>
                     </tr>
                     <!--показывать следующий тег <tr/>, если переменная $show_complete_tasks равна единице-->
-                    <?php if ($show_complete_tasks): ?>
+                    <?php if ($show_complete_tasks === 1): ?>
                     <tr class="tasks__item task task--completed">
                         <td class="task__select">
                             <label class="checkbox task__checkbox">
@@ -115,6 +115,7 @@
     <div class="container">
         <div class="main-footer__copyright">
             <p>© 2019, «Дела в порядке»</p>
+
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
@@ -161,6 +162,7 @@
 
         <div class="main-footer__developed-by">
             <span class="visually-hidden">Разработано:</span>
+
             <a href="https://htmlacademy.ru/intensive/php">
                 <img src="img/htmlacademy.svg" alt="HTML Academy" width="118" height="40">
             </a>
