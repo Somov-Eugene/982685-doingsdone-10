@@ -1,5 +1,6 @@
 .DS_Store
 .idea
+.htaccess
 *.ai
 *.log
 *.pdf
