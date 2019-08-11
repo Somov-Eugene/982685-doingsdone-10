@@ -12,6 +12,18 @@ $tasks = [
     ['name' => 'Купить корм для кота', 'date_completion' => 'Нет', 'project_name' => 'Домашние дела', 'is_completed' => 0],
     ['name' => 'Заказать пиццу', 'date_completion' => 'Нет', 'project_name' => 'Домашние дела', 'is_completed' => 0]
 ];
+
+function number_project_tasks(array $tasks_list, string $project_name) {
+    $task_counter = 0;
+
+    foreach ($tasks_list as $task) {
+        if ($task['project_name'] === $project_name) {
+            $task_counter++;
+        }
+    }
+
+    return $task_counter;
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -56,7 +68,7 @@ $tasks = [
                         <?php foreach ($projects_names as $project_name): ?>
                         <li class="main-navigation__list-item">
                             <a class="main-navigation__list-item-link" href="#"><?= $project_name ?></a>
-                            <span class="main-navigation__list-item-count">0</span>
+                            <span class="main-navigation__list-item-count"><?= number_project_tasks($tasks, $project_name); ?></span>
                         </li>
                         <?php endforeach; ?>
                     </ul>
