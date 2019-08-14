@@ -1,5 +1,5 @@
 <?php
-require_once ("helpers.php");
+require_once 'helpers.php';
 
 $page_title = "Дела в порядке";
 $user_name = "Константин";
@@ -30,8 +30,22 @@ function number_project_tasks(array $tasks_list, string $project_name) {
     return $task_counter;
 }
 
-$main_content   = include_template('main.php', ['tasks' => $tasks, 'projects_names' => $projects_names, 'show_complete_tasks' => $show_complete_tasks]);
-$layout_content = include_template('layout.php', ['main_content' => $main_content, 'page_title'=> $page_title, 'user_name' => $user_name]);
+$main_content = include_template(
+    'main.php',
+    [
+        'tasks' => $tasks,
+        'projects_names' => $projects_names,
+        'show_complete_tasks' => $show_complete_tasks
+    ]
+);
+
+$layout_content = include_template(
+    'layout.php',
+    [
+        'main_content' => $main_content,
+        'page_title'=> $page_title,
+        'user_name' => $user_name
+    ]
+);
 
 print($layout_content);
-?>
