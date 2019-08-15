@@ -1,4 +1,9 @@
 <?php
+date_default_timezone_set('Europe/Moscow');
+// set_locale(LC_ALL, 'ru-RU');
+// Fatal error: Uncaught Error: Call to undefined function set_locale() in D:\OSPanel\domains\doingsdone\index.php:3
+// Stack trace: #0 {main} thrown in D:\OSPanel\domains\doingsdone\index.php on line 3
+
 require_once 'helpers.php';
 
 $page_title = "Дела в порядке";
@@ -28,6 +33,25 @@ function number_project_tasks(array $tasks_list, string $project_name) {
     }
 
     return $task_counter;
+}
+
+function hours_left_deadline(string $date_completion) {
+    if ($date_completion === 'Нет') {
+        $hours_left = 100000000;
+    }
+    else {
+        // $dt_end = date_create($date_completion);
+        // $dt_now = date_create('now');
+        // $dt_diff = date_diff($dt_end, $dt_now);
+        // $hours_left = date_interval_format($dt_diff, '%h');
+
+        $ts_end = strtotime($date_completion);
+        $ts_now = strtotime('now');
+        $ts_diff = $ts_end - $ts_now;
+        $hours_left = floor($ts_diff / 3600);
+    }
+
+    return $hours_left;
 }
 
 $main_content = include_template(
