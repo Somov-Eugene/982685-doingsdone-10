@@ -1,8 +1,6 @@
 <?php
 date_default_timezone_set('Europe/Moscow');
-// set_locale(LC_ALL, 'ru-RU');
-// Fatal error: Uncaught Error: Call to undefined function set_locale() in D:\OSPanel\domains\doingsdone\index.php:3
-// Stack trace: #0 {main} thrown in D:\OSPanel\domains\doingsdone\index.php on line 3
+setlocale(LC_ALL, 'ru-RU');
 
 require_once 'helpers.php';
 
@@ -19,8 +17,8 @@ $tasks = [
     ['name' => 'Выполнить тестовое задание', 'date_completion' => '25.12.2018', 'project_name' => 'Работа', 'is_completed' => 0],
     ['name' => 'Сделать задание первого раздела', 'date_completion' => '21.12.2018', 'project_name' => 'Учеба', 'is_completed' => 1],
     ['name' => 'Встреча с другом', 'date_completion' => '22.12.2018', 'project_name' => 'Входящие', 'is_completed' => 0],
-    ['name' => 'Купить корм для кота', 'date_completion' => 'Нет', 'project_name' => 'Домашние дела', 'is_completed' => 0],
-    ['name' => 'Заказать пиццу', 'date_completion' => 'Нет', 'project_name' => 'Домашние дела', 'is_completed' => 0]
+    ['name' => 'Купить корм для кота', 'date_completion' => null, 'project_name' => 'Домашние дела', 'is_completed' => 0],
+    ['name' => 'Заказать пиццу', 'date_completion' => null, 'project_name' => 'Домашние дела', 'is_completed' => 0]
 ];
 
 function number_project_tasks(array $tasks_list, string $project_name) {
@@ -35,16 +33,10 @@ function number_project_tasks(array $tasks_list, string $project_name) {
     return $task_counter;
 }
 
-function hours_left_deadline(string $date_completion) {
-    if ($date_completion === 'Нет') {
-        $hours_left = 100000000;
-    }
-    else {
-        // $dt_end = date_create($date_completion);
-        // $dt_now = date_create('now');
-        // $dt_diff = date_diff($dt_end, $dt_now);
-        // $hours_left = date_interval_format($dt_diff, '%h');
+function hours_left_deadline($date_completion) {
+    $hours_left = 100000000;
 
+    if ( !is_null($date_completion) ) {
         $ts_end = strtotime($date_completion);
         $ts_now = strtotime('now');
         $ts_diff = $ts_end - $ts_now;
@@ -52,6 +44,12 @@ function hours_left_deadline(string $date_completion) {
     }
 
     return $hours_left;
+}
+
+function check_task_important(array $task) {
+    $hours_left = hours_left_deadline($task['date_completion']);
+
+    return ($hours_left <= 24) ? "task--important" : "";
 }
 
 $main_content = include_template(
