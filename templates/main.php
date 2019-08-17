@@ -32,17 +32,18 @@
             <a href="/" class="tasks-switch__item">Просроченные</a>
         </nav>
 
+        <?php $is_show_complete_tasks = (1 === $show_complete_tasks); ?>
         <label class="checkbox">
-            <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?= (1 === $show_complete_tasks) ? "checked" : "" ?>>
+            <input class="checkbox__input visually-hidden show_completed" type="checkbox" <?= ($is_show_complete_tasks) ? "checked" : "" ?>>
             <span class="checkbox__text">Показывать выполненные</span>
         </label>
     </div>
 
     <table class="tasks">
         <?php foreach ($tasks as $task):
-                $is_task_completed = (1 === $task['is_completed']);
-                if (0 === $show_complete_tasks and $is_task_completed) { continue; } ?>
-        <tr class="tasks__item task <?= ($is_task_completed) ? "task--completed" : "" ?> <?= check_task_important($task) ?>">
+            $is_task_completed = (1 === $task['is_completed']);
+            if (!$is_task_completed or $is_show_complete_tasks): ?>
+        <tr class="tasks__item task <?= additional_task_classes($task, $show_complete_tasks) ?>">
             <td class="task__select">
                 <label class="checkbox task__checkbox">
                     <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1" <?= ($is_task_completed) ? "checked" : "" ?>>
@@ -56,6 +57,7 @@
 
             <td class="task__date"><?= strip_tags($task['date_completion']) ?></td>
         </tr>
+            <?php endif; ?>
         <?php endforeach; ?>
     </table>
 </main>
