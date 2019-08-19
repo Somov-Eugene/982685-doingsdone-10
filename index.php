@@ -9,6 +9,7 @@ $user_name = "Константин";
 
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
+$is_show_complete_tasks = (1 === $show_complete_tasks);
 
 $projects_names = ['Входящие', 'Учеба', 'Работа', 'Домашние дела', 'Авто'];
 
@@ -34,7 +35,9 @@ function number_project_tasks(array $tasks_list, string $project_name) {
 }
 
 function hours_left_deadline($date_completion) {
-    if ( is_null($date_completion) ) return null;
+    if (is_null($date_completion)) {
+        return null;
+    }
 
     $ts_end = strtotime($date_completion);
     $ts_now = strtotime('now');
@@ -44,19 +47,17 @@ function hours_left_deadline($date_completion) {
     return $hours_left;
 }
 
-function additional_task_classes(array $task, int $show_complete_tasks) {
-    $add_class = '';
-
-    if ( 1 === $show_complete_tasks and 1 === $task['is_completed'] ) {
-        $add_class = 'task--completed';
-    } else {
-        $hours_left = hours_left_deadline($task['date_completion']);
-        if ( !is_null($hours_left) and $hours_left <= 24 ) {
-            $add_class = 'task--important';
-        }
+function additional_task_classes(array $task, bool $is_show_complete_tasks) {
+    if (1 === $task['is_completed'] and $is_show_complete_tasks) {
+        return 'task--completed';
     }
 
-    return $add_class;
+    $hours_left = hours_left_deadline($task['date_completion']);
+    if (!is_null($hours_left) and $hours_left <= 24) {
+        return 'task--important';
+    }
+
+    return '';
 }
 
 $main_content = include_template(
@@ -64,7 +65,7 @@ $main_content = include_template(
     [
         'tasks' => $tasks,
         'projects_names' => $projects_names,
-        'show_complete_tasks' => $show_complete_tasks
+        'is_show_complete_tasks' => $is_show_complete_tasks
     ]
 );
 
