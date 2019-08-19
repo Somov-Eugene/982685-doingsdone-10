@@ -34,7 +34,9 @@ function number_project_tasks(array $tasks_list, string $project_name) {
 }
 
 function hours_left_deadline($date_completion) {
-    if ( is_null($date_completion) ) return null;
+    if (is_null($date_completion)) {
+        return null;
+    }
 
     $ts_end = strtotime($date_completion);
     $ts_now = strtotime('now');
