@@ -9,7 +9,6 @@ $user_name = "Константин";
 
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
-$is_show_complete_tasks = (1 === $show_complete_tasks);
 
 $projects_names = ['Входящие', 'Учеба', 'Работа', 'Домашние дела', 'Авто'];
 
@@ -48,7 +47,7 @@ function hours_left_deadline($date_completion) {
 }
 
 function additional_task_classes(array $task, bool $is_show_complete_tasks) {
-    if (1 === $task['is_completed'] and $is_show_complete_tasks) {
+    if (boolval($task['is_completed']) and $is_show_complete_tasks) {
         return 'task--completed';
     }
 
@@ -65,7 +64,7 @@ $main_content = include_template(
     [
         'tasks' => $tasks,
         'projects_names' => $projects_names,
-        'is_show_complete_tasks' => $is_show_complete_tasks
+        'is_show_complete_tasks' => boolval($show_complete_tasks)
     ]
 );
 
