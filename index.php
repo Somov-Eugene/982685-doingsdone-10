@@ -3,6 +3,7 @@ date_default_timezone_set('Europe/Moscow');
 setlocale(LC_ALL, 'ru-RU');
 
 require_once 'helpers.php';
+require_once 'database.php';
 
 $page_title = "Дела в порядке";
 $user_name = "Константин";
@@ -62,64 +63,24 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks) {
 }
 
 // подключение к MySQL
-$db_link = mysqli_connect('localhost', 'root', '', '982685-doingsdone-10');
-$error = '';
+$db_link = db_init('localhost', 'root', '', '982685-doingsdone-10');
 
 if (!$db_link) {
     // oшибка подключения к БД
-    $error = mysqli_connect_error();
+    echo 'Ошибка подключения к БД. Дальнейшая работа сайта невозможна!';
+    die;
 }
 else {
     // ОК: cоединение установлено
 
-    // установка кодировки
-    mysqli_set_charset($db_link, 'utf8');
-
-    // включить преобразование типов для INT и FLOAT
-    mysqli_options($db_link, MYSQLI_OPT_INT_AND_FLOAT_NATIVE, 1);
-
     // получение ID текущего пользователя
-    $sql = "SELECT u.`id` FROM users u WHERE u.`username` = ?";
-    $stmt = db_get_prepare_stmt($db_link, $sql, [$user_name]);
-    mysqli_stmt_execute($stmt);
-    $sql_result = mysqli_stmt_get_result($stmt);
+    $user_id = db_get_id_user($db_link, $user_name);
 
-    if (!$sql_result) {
-        $error = mysqli_error($db_link);
-    }
-    else {
-        $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
-        foreach ($rows as $row) {
-            $user_id = $row['id'];
-        }
+    // получение списка проектов текущего пользователя
+    $projects_names = db_get_projects_list($db_link, $user_id);
 
-        // получение списка проектов текущего пользователя
-        $sql = "SELECT p.`name` FROM projects p WHERE p.`user_id` = '" . $user_id . "'";
-        $sql_result = mysqli_query($db_link, $sql);
-
-        if (!$sql_result) {
-            $error = mysqli_error($db_link);
-        }
-        else {
-            $rows = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
-            foreach ($rows as $row) {
-                $projects_names[] = $row['name'];
-            }
-        }
-
-        // получение списка задач текущего пользователя
-        $sql = "SELECT t.`is_completed`, t.`name`, t.`dt_completion` AS date_completion, p.`name` AS project_name"
-             ." FROM tasks t JOIN projects p ON p.`id` = t.`project_id`"
-             ." WHERE t.`user_id` = '" . $user_id . "'";
-        $sql_result = mysqli_query($db_link, $sql);
-
-        if (!$sql_result) {
-            $error = mysqli_error($db_link);
-        }
-        else {
-            $tasks = mysqli_fetch_all($sql_result, MYSQLI_ASSOC);
-        }
-    }
+    // получение списка задач текущего пользователя
+    $tasks = db_get_tasks_list($db_link, $user_id);
 }
 
 $main_content = include_template(
