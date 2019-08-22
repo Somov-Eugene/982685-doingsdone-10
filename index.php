@@ -7,21 +7,13 @@ require_once 'database.php';
 
 $page_title = "Дела в порядке";
 $user_name = "Константин";
+$user_email = 'kkk@gmail.com';
+$user_id = 0;
 
 // показывать или нет выполненные задачи
 $show_complete_tasks = rand(0, 1);
 
-// $projects_names = ['Входящие', 'Учеба', 'Работа', 'Домашние дела', 'Авто'];
-$projects_names = [];
-
-// $tasks = [
-//     ['name' => 'Собеседование в IT компании', 'date_completion' => '2018-12-01', 'project_name' => 'Работа', 'is_completed' => 0],
-//     ['name' => 'Выполнить тестовое задание', 'date_completion' => '2018-12-25', 'project_name' => 'Работа', 'is_completed' => 0],
-//     ['name' => 'Сделать задание первого раздела', 'date_completion' => '2018-12-21', 'project_name' => 'Учеба', 'is_completed' => 1],
-//     ['name' => 'Встреча с другом', 'date_completion' => '2018-12-22', 'project_name' => 'Входящие', 'is_completed' => 0],
-//     ['name' => 'Купить корм для кота', 'date_completion' => null, 'project_name' => 'Домашние дела', 'is_completed' => 0],
-//     ['name' => 'Заказать пиццу', 'date_completion' => null, 'project_name' => 'Домашние дела', 'is_completed' => 0]
-// ];
+$projects = [];
 $tasks = [];
 
 function number_project_tasks(array $tasks_list, string $project_name) {
@@ -67,27 +59,29 @@ $db_link = db_init('localhost', 'root', '', '982685-doingsdone-10');
 
 if (!$db_link) {
     // oшибка подключения к БД
-    echo 'Ошибка подключения к БД. Дальнейшая работа сайта невозможна!';
-    die;
+    $errorMsg = 'Ошибка подключения к БД. Дальнейшая работа сайта невозможна!';
+    die($errorMsg);
 }
-else {
-    // ОК: cоединение установлено
 
-    // получение ID текущего пользователя
-    $user_id = db_get_id_user($db_link, $user_name);
+// ОК: cоединение установлено
 
-    // получение списка проектов текущего пользователя
-    $projects_names = db_get_projects_list($db_link, $user_id);
-
-    // получение списка задач текущего пользователя
-    $tasks = db_get_tasks_list($db_link, $user_id);
+// получение ID текущего пользователя
+$user = get_user_by_email($db_link, $user_email);
+if ($user) {
+    $user_id = $user["id"];
 }
+
+// получение списка проектов текущего пользователя
+$projects = get_user_projects($db_link, $user_id);
+
+// получение списка задач текущего пользователя
+$tasks = get_user_tasks($db_link, $user_id);
 
 $main_content = include_template(
     'main.php',
     [
         'tasks' => $tasks,
-        'projects_names' => $projects_names,
+        'projects' => $projects,
         'is_show_complete_tasks' => boolval($show_complete_tasks)
     ]
 );
