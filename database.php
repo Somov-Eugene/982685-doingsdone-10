@@ -1,6 +1,4 @@
 <?php
-require_once 'helpers.php';
-
 /**
  * Создает новое подключение к БД и настраивает параметры подключения
  *
@@ -25,6 +23,61 @@ function db_init($host, $user, $password, $database) {
     }
 
     return $link;
+}
+
+
+/**
+ * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param array $data Данные для вставки на место плейсхолдеров
+ *
+ * @return mysqli_stmt Подготовленное выражение
+ */
+function db_get_prepare_stmt($link, $sql, $data = []) {
+    $stmt = mysqli_prepare($link, $sql);
+
+    if ($stmt === false) {
+        $errorMsg = 'Не удалось инициализировать подготовленное выражение: ' . mysqli_error($link);
+        die($errorMsg);
+    }
+
+    if ($data) {
+        $types = '';
+        $stmt_data = [];
+
+        foreach ($data as $value) {
+            $type = 's';
+
+            if (is_int($value)) {
+                $type = 'i';
+            }
+            else if (is_string($value)) {
+                $type = 's';
+            }
+            else if (is_double($value)) {
+                $type = 'd';
+            }
+
+            if ($type) {
+                $types .= $type;
+                $stmt_data[] = $value;
+            }
+        }
+
+        $values = array_merge([$stmt, $types], $stmt_data);
+
+        $func = 'mysqli_stmt_bind_param';
+        $func(...$values);
+
+        if (mysqli_errno($link) > 0) {
+            $errorMsg = 'Не удалось связать подготовленное выражение с параметрами: ' . mysqli_error($link);
+            die($errorMsg);
+        }
+    }
+
+    return $stmt;
 }
 
 
@@ -74,24 +127,24 @@ function db_insert_data($link, $sql, $data = []) {
 
 
 /**
- * Возвращает ID текущего пользователя
+ * Возвращает учетные данные текущего пользователя
  *
  * @param $link mysqli Ресурс соединения
- * @param $user_name string Имя пользователя
+ * @param $user_name string e-mail пользователя
  *
- * @return int ID пользователя
+ * @return array Данные пользователя (ассоциативный массив)
  */
-function db_get_id_user($link, $user_name) {
-    $user_id = 0;
+function get_user_by_email($link, $email) {
+    $result = [];
 
-    $sql = "SELECT u.`id` FROM users u WHERE u.`username` = ?";
-    $sql_result = db_fetch_data($link, $sql, [$user_name]);
+    $sql = "SELECT * FROM users u WHERE u.`email` = ?";
+    $sql_result = db_fetch_data($link, $sql, [$email]);
 
     if ($sql_result) {
-        $user_id = $sql_result[0]['id'];
+        $result = $sql_result;
     }
 
-    return $user_id;
+    return $result;
 }
 
 
@@ -101,19 +154,16 @@ function db_get_id_user($link, $user_name) {
  * @param $link mysqli Ресурс соединения
  * @param $user_id int ID пользователя
  *
- * @return array Список названий проектов пользователя (простой массив)
+ * @return array Список проектов пользователя (ассоциативный массив)
  */
-function db_get_projects_list($link, $user_id) {
+function get_user_projects($link, $user_id) {
     $result = [];
 
     $sql = "SELECT p.`name` FROM projects p WHERE p.`user_id` = ?";
     $sql_result = db_fetch_data($link, $sql, [$user_id]);
 
     if ($sql_result) {
-        // делаем простой массив из ассоциативного
-        foreach($sql_result as $row) {
-            $result[] = $row['name'];
-        }
+        $result = $sql_result;
     }
 
     return $result;
@@ -128,17 +178,19 @@ function db_get_projects_list($link, $user_id) {
  *
  * @return array Список задач пользователя (ассоциативный массив)
  */
-function db_get_tasks_list($link, $user_id) {
+function get_user_tasks($link, $user_id) {
     $result = [];
 
-    $sql = "SELECT"
-         ."   t.`is_completed`,"
-         ."   t.`name`,"
-         ."   t.`dt_completion` AS date_completion,"
-         ."   p.`name` AS project_name"
-         ." FROM tasks t"
-         ." JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?"
-         ." WHERE t.`user_id` = ?";
+    $sql = "
+        SELECT
+          t.`is_completed`,
+          t.`name`,
+          t.`dt_completion` AS date_completion,
+          p.`name` AS project_name
+        FROM tasks t
+        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
+        WHERE t.`user_id` = ?
+        ";
     $sql_result = db_fetch_data($link, $sql, [$user_id, $user_id]);
 
     if ($sql_result) {
