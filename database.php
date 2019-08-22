@@ -141,7 +141,8 @@ function get_user_by_email($link, $email) {
     $sql_result = db_fetch_data($link, $sql, [$email]);
 
     if ($sql_result) {
-        $result = $sql_result;
+        // одна уникальная запись
+        $result = $sql_result[0];
     }
 
     return $result;
@@ -159,7 +160,7 @@ function get_user_by_email($link, $email) {
 function get_user_projects($link, $user_id) {
     $result = [];
 
-    $sql = "SELECT p.`name` FROM projects p WHERE p.`user_id` = ?";
+    $sql = "SELECT p.`id`, p.`name` FROM projects p WHERE p.`user_id` = ?";
     $sql_result = db_fetch_data($link, $sql, [$user_id]);
 
     if ($sql_result) {
