@@ -3,10 +3,10 @@
 
     <nav class="main-navigation">
         <ul class="main-navigation__list">
-            <?php foreach ($projects_names as $project_name): ?>
+            <?php foreach ($projects as $project): ?>
             <li class="main-navigation__list-item">
-                <a class="main-navigation__list-item-link" href="#"><?= strip_tags($project_name) ?></a>
-                <span class="main-navigation__list-item-count"><?= number_project_tasks($tasks, $project_name); ?></span>
+                <a class="main-navigation__list-item-link" href="#"><?= strip_tags($project['name']) ?></a>
+                <span class="main-navigation__list-item-count"><?= number_project_tasks($tasks, $project['name']); ?></span>
             </li>
             <?php endforeach; ?>
         </ul>

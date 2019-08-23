@@ -41,7 +41,7 @@ CREATE UNIQUE INDEX idx_projects_name ON projects (`name`);
 CREATE TABLE tasks (
   `id`       	    INT AUTO_INCREMENT PRIMARY KEY,
   `dt_add`   	    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status`   	    TINYINT NOT NULL DEFAULT 0,
+  `is_completed`  TINYINT NOT NULL DEFAULT 0,
   `name`     	    VARCHAR(255) NOT NULL,
   `file`     	    VARCHAR(255) DEFAULT NULL,
   `dt_completion` DATE DEFAULT NULL,
