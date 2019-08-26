@@ -55,7 +55,7 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks) {
 }
 
 function get_link_to_project(int $project_id) {
-    return "/" . pathinfo(__FILE__, PATHINFO_BASENAME) . '?id=' . (string)$project_id;
+    return "/" . pathinfo(__FILE__, PATHINFO_BASENAME) . '?project_id=' . (string)$project_id;
 }
 
 // подключение к MySQL
