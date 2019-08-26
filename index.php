@@ -58,6 +58,16 @@ function get_link_to_project(int $project_id) {
     return "/" . pathinfo(__FILE__, PATHINFO_BASENAME) . '?project_id=' . (string)$project_id;
 }
 
+function mark_active_project(int $project_id) {
+    if (isset($_GET['project_id'])) {
+        if ((integer)$_GET['project_id'] === $project_id) {
+            return 'main-navigation__list-item--active';
+        }
+    }
+
+    return '';
+}
+
 // подключение к MySQL
 $db_link = db_init('localhost', 'root', '', '982685-doingsdone-10');
 
