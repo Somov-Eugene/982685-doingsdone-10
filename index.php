@@ -54,6 +54,10 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks) {
     return '';
 }
 
+function get_link_to_project(int $project_id) {
+    return "/" . pathinfo(__FILE__, PATHINFO_BASENAME) . '?id=' . (string)$project_id;
+}
+
 // подключение к MySQL
 $db_link = db_init('localhost', 'root', '', '982685-doingsdone-10');
 
