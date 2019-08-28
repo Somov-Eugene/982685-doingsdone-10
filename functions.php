@@ -71,7 +71,7 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks) {
  * @return string Относильный путь к текущей странице с GET-запросом
  */
 function get_link_to_project(int $project_id) {
-    return "/" . pathinfo(__FILE__, PATHINFO_BASENAME) . '?project_id=' . (string)$project_id;
+    return '/index.php?project_id=' . (string)$project_id;
 }
 
 
