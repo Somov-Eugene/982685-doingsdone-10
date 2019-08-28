@@ -3,6 +3,7 @@ date_default_timezone_set('Europe/Moscow');
 setlocale(LC_ALL, 'ru-RU');
 
 require_once 'helpers.php';
+require_once 'functions.php';
 require_once 'database.php';
 
 $page_title = "Дела в порядке";
@@ -15,44 +16,6 @@ $show_complete_tasks = rand(0, 1);
 
 $projects = [];
 $tasks = [];
-
-function number_project_tasks(array $tasks_list, string $project_name) {
-    $task_counter = 0;
-
-    foreach ($tasks_list as $task) {
-        if ($task['project_name'] === $project_name) {
-            $task_counter++;
-        }
-    }
-
-    return $task_counter;
-}
-
-function hours_left_deadline($date_completion) {
-    if (is_null($date_completion)) {
-        return null;
-    }
-
-    $ts_end = strtotime($date_completion);
-    $ts_now = strtotime('now');
-    $ts_diff = $ts_end - $ts_now;
-    $hours_left = floor($ts_diff / 3600);
-
-    return $hours_left;
-}
-
-function additional_task_classes(array $task, bool $is_show_complete_tasks) {
-    if (boolval($task['is_completed']) and $is_show_complete_tasks) {
-        return 'task--completed';
-    }
-
-    $hours_left = hours_left_deadline($task['date_completion']);
-    if (!is_null($hours_left) and $hours_left <= 24) {
-        return 'task--important';
-    }
-
-    return '';
-}
 
 // подключение к MySQL
 $db_link = db_init('localhost', 'root', '', '982685-doingsdone-10');
@@ -74,8 +37,25 @@ if ($user) {
 // получение списка проектов текущего пользователя
 $projects = get_user_projects($db_link, $user_id);
 
-// получение списка задач текущего пользователя
-$tasks = get_user_tasks($db_link, $user_id);
+// Если параметр присутствует, то показывать только те задачи,
+// что относятся к этому проекту
+if (isset($_GET['project_id']))
+{
+    $project_id = (integer)$_GET['project_id'];
+
+    // Если значение параметра запроса не существует,
+    // то вместо содержимого страницы возвращать код ответа 404
+    if (!is_exist_project($db_link, $user_id, $project_id)) {
+        http_response_code(404);
+        die;
+    }
+
+    $tasks = get_user_tasks_project($db_link, $user_id, $project_id);
+}
+else {
+    // Если параметра нет, то показывать все задачи
+    $tasks = get_user_tasks_all($db_link, $user_id);
+}
 
 $main_content = include_template(
     'main.php',
