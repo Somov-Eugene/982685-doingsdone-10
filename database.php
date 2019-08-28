@@ -172,14 +172,14 @@ function get_user_projects($link, $user_id) {
 
 
 /**
- * Возвращает список задач переданного пользователя
+ * Возвращает список всех задач переданного пользователя
  *
  * @param $link mysqli Ресурс соединения
  * @param $user_id int ID пользователя
  *
  * @return array Список задач пользователя (ассоциативный массив)
  */
-function get_user_tasks($link, $user_id) {
+function get_user_tasks_all($link, $user_id) {
     $result = [];
 
     $sql = "
@@ -196,6 +196,60 @@ function get_user_tasks($link, $user_id) {
 
     if ($sql_result) {
         $result = $sql_result;
+    }
+
+    return $result;
+}
+
+
+/**
+ * Возвращает список задач пользователя по указанному проекту
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $user_id int ID пользователя
+ * @param $project_id int ID проекта
+ *
+ * @return array Список задач пользователя (ассоциативный массив)
+ */
+function get_user_tasks_project($link, $user_id, $project_id) {
+    $result = [];
+
+    $sql = "
+        SELECT
+          t.`is_completed`,
+          t.`name`,
+          t.`dt_completion` AS date_completion,
+          p.`name` AS project_name
+        FROM tasks t
+        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
+        WHERE t.`user_id` = ?
+        AND p.`id` = ?";
+    $sql_result = db_fetch_data($link, $sql, [$user_id, $user_id, $project_id]);
+
+    if ($sql_result) {
+        $result = $sql_result;
+    }
+
+    return $result;
+}
+
+
+/**
+ * Определяет имется ли переданный ID проекта у данного пользователя
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param int $user_id ID пользователя
+ * @param int $id_project_id ID проверяемого проекта
+ * @return boolean Логическое значение (true/false)
+ */
+function is_exist_project(mysqli $link, int $user_id, int $project_id) {
+    $result = false;
+
+    $sql = "SELECT count(*) AS cnt FROM projects p WHERE p.`user_id` = ? AND p.`id` = ?";
+    $sql_result = db_fetch_data($link, $sql, [$user_id, $project_id]);
+
+    if ($sql_result) {
+        $result = ($sql_result[0]['cnt'] !== 0) ? true : false;
     }
 
     return $result;
