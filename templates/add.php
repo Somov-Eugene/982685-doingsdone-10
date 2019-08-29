@@ -3,30 +3,14 @@
 
     <nav class="main-navigation">
         <ul class="main-navigation__list">
+        <?php foreach ($projects as $project): ?>
             <li class="main-navigation__list-item">
-                <a class="main-navigation__list-item-link" href="#">Входящие</a>
-                <span class="main-navigation__list-item-count">24</span>
+                <a class="main-navigation__list-item-link <?= mark_active_project($project['id']) ?>" href="<?= get_link_to_project($project['id']) ?>">
+                    <?= strip_tags($project['name']) ?>
+                </a>
+                <span class="main-navigation__list-item-count"><?= number_project_tasks($tasks, $project['name']); ?></span>
             </li>
-
-            <li class="main-navigation__list-item main-navigation__list-item--active">
-                <a class="main-navigation__list-item-link" href="#">Работа</a>
-                <span class="main-navigation__list-item-count">12</span>
-            </li>
-
-            <li class="main-navigation__list-item">
-                <a class="main-navigation__list-item-link" href="#">Здоровье</a>
-                <span class="main-navigation__list-item-count">3</span>
-            </li>
-
-            <li class="main-navigation__list-item">
-                <a class="main-navigation__list-item-link" href="#">Домашние дела</a>
-                <span class="main-navigation__list-item-count">7</span>
-            </li>
-
-            <li class="main-navigation__list-item">
-                <a class="main-navigation__list-item-link" href="#">Авто</a>
-                <span class="main-navigation__list-item-count">0</span>
-            </li>
+        <?php endforeach; ?>
         </ul>
     </nav>
 
