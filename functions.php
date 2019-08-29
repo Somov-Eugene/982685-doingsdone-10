@@ -68,10 +68,10 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks) {
  *
  * @param $project_id int ID проекта
  *
- * @return string Относильный путь к текущей странице с GET-запросом
+ * @return string Абсолютный путь к текущей странице с GET-запросом
  */
 function get_link_to_project(int $project_id) {
-    return '/index.php?project_id=' . (string)$project_id;
+    return '/index.php?project_id=' . $project_id;
 }
 
 
@@ -84,10 +84,8 @@ function get_link_to_project(int $project_id) {
  */
 
 function mark_active_project(int $project_id) {
-    if (isset($_GET['project_id'])) {
-        if ((integer)$_GET['project_id'] === $project_id) {
-            return 'main-navigation__list-item--active';
-        }
+    if (isset($_GET['project_id']) and ((int)$_GET['project_id'] === $project_id)) {
+        return 'main-navigation__list-item--active';
     }
 
     return '';
