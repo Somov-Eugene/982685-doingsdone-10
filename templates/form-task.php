@@ -24,7 +24,7 @@
         <div class="form__row">
             <label class="form__label" for="name">Название <sup>*</sup></label>
 
-            <input class="form__input" type="text" name="name" id="name" value="" placeholder="Введите название">
+            <input class="form__input" type="text" name="name" id="name" value="<?= get_post_value('name'); ?>" placeholder="Введите название">
         </div>
 
         <div class="form__row">
@@ -41,7 +41,7 @@
         <div class="form__row">
             <label class="form__label" for="date">Дата выполнения</label>
 
-            <input class="form__input form__input--date" type="text" name="date" id="date" value=""
+            <input class="form__input form__input--date" type="text" name="date" id="date" value="<?= get_post_value('date'); ?>"
                 placeholder="Введите дату в формате ГГГГ-ММ-ДД">
         </div>
 
@@ -49,7 +49,7 @@
             <label class="form__label" for="file">Файл</label>
 
             <div class="form__input-file">
-                <input class="visually-hidden" type="file" name="file" id="file" value="">
+                <input class="visually-hidden" type="file" name="file" id="file" value="<?= get_post_value('file'); ?>">
 
                 <label class="button button--transparent" for="file">
                     <span>Выберите файл</span>
