@@ -7,7 +7,7 @@
  * @return string Значение поля, если оно существует или пустую строку в противном случае
  */
 function get_post_value($name) {
-    return $_POST($name) ?? '';
+    return $_POST[$name] ?? '';
 }
 
 /**
@@ -83,6 +83,7 @@ function validate_date($name) {
  * Проверяет идентификатор выбранного проекта, что он ссылается на реально существующий проект
  *
  * @param string $name Название поля
+ * @param array $allowed_list Массив с допустимыми ID
  *
  * @return string Сообщение об ошибке, если значение поля некорректное или null, если ошибки нет
  */
