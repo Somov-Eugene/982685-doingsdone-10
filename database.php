@@ -150,7 +150,7 @@ function get_user_by_email($link, $email) {
 
 
 /**
- * Возвращает список проектов переданного пользователя
+ * Возвращает список проектов переданного пользователя и количество задач в каждом из проектов
  *
  * @param $link mysqli Ресурс соединения
  * @param $user_id int ID пользователя
@@ -160,7 +160,16 @@ function get_user_by_email($link, $email) {
 function get_user_projects($link, $user_id) {
     $result = [];
 
-    $sql = "SELECT p.`id`, p.`name` FROM projects p WHERE p.`user_id` = ?";
+    $sql = "
+        SELECT
+          p.`id`,
+          p.`name`,
+          COUNT(t.`id`) AS cnt_tasks
+        FROM projects p
+        LEFT JOIN tasks t ON t.`project_id` = p.`id`
+        WHERE p.`user_id` = ?
+        GROUP BY p.`id`
+        ";
     $sql_result = db_fetch_data($link, $sql, [$user_id]);
 
     if ($sql_result) {
