@@ -201,7 +201,7 @@ function get_user_tasks_all($link, $user_id) {
         FROM tasks t
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
         WHERE t.`user_id` = ?
-        ";
+        ORDER BY t.`dt_add` DESC";
     $sql_result = db_fetch_data($link, $sql, [$user_id, $user_id]);
 
     if ($sql_result) {
@@ -234,7 +234,8 @@ function get_user_tasks_project($link, $user_id, $project_id) {
         FROM tasks t
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
         WHERE t.`user_id` = ?
-        AND p.`id` = ?";
+        AND p.`id` = ?
+        ORDER BY t.`dt_add` DESC";
     $sql_result = db_fetch_data($link, $sql, [$user_id, $user_id, $project_id]);
 
     if ($sql_result) {
