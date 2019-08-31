@@ -187,6 +187,7 @@ function get_user_tasks_all($link, $user_id) {
           t.`is_completed`,
           t.`name`,
           t.`dt_completion` AS date_completion,
+          t.`file`,
           p.`name` AS project_name
         FROM tasks t
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
@@ -219,6 +220,7 @@ function get_user_tasks_project($link, $user_id, $project_id) {
           t.`is_completed`,
           t.`name`,
           t.`dt_completion` AS date_completion,
+          t.`file`,
           p.`name` AS project_name
         FROM tasks t
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
