@@ -52,9 +52,11 @@
                 </label>
             </td>
 
-            <!--td class="task__file">
-                <a class="download-link" href="#">Home.psd</a>
-            </td-->
+            <td class="task__file">
+            <?php if (!isnull($task['file'])): ?>
+                <a class="download-link" href="<?= '/uploads/' . $task['file']; ?>"><?= strip_tags($task['file']) ?></a>
+            <?php endif; ?>
+            </td>
 
             <td class="task__date"><?= strip_tags($task['date_completion']) ?></td>
         </tr>
