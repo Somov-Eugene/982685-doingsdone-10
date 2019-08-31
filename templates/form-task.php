@@ -24,7 +24,7 @@
         <div class="form__row">
             <label class="form__label" for="name">Название <sup>*</sup></label>
 
-            <input class="form__input <?= isset($errors['name']) ? "form__input--error" : "" ?>" type="text" name="name" id="name"
+            <input class="form__input <?= isset($errors['name']) ? 'form__input--error' : '' ?>" type="text" name="name" id="name"
                 value="<?= ($task['name'] ?? ''); ?>" placeholder="Введите название">
 
             <?php if (isset($errors['name'])): ?>
@@ -35,7 +35,7 @@
         <div class="form__row">
             <label class="form__label" for="project">Проект <sup>*</sup></label>
 
-            <select class="form__input form__input--select <?= isset($errors['project']) ? "form__input--error" : "" ?>" name="project" id="project">
+            <select class="form__input form__input--select <?= isset($errors['project']) ? 'form__input--error' : '' ?>" name="project" id="project">
             <?php foreach ($projects as $project): ?>
                 <option value="<?= $project['id']; ?>" <?php if ($project['id'] === ($task['project'] ?? '')): ?>selected<?php endif; ?>>
                     <?= strip_tags($project['name']); ?>
@@ -51,7 +51,7 @@
         <div class="form__row">
             <label class="form__label" for="date">Дата выполнения</label>
 
-            <input class="form__input form__input--date <?= isset($errors['date']) ? "form__input--error" : "" ?>" type="text" name="date" id="date"
+            <input class="form__input form__input--date <?= isset($errors['date']) ? 'form__input--error' : '' ?>" type="text" name="date" id="date"
                 value="<?= ($task['date'] ?? ''); ?>" placeholder="Введите дату в формате ГГГГ-ММ-ДД">
 
             <?php if (isset($errors['date'])): ?>
