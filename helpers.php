@@ -65,15 +65,20 @@ function validate_length($name, $min, $max) {
  * @return string Сообщение об ошибке, если значение поля некорректное или null, если ошибки нет
  */
 function validate_date($name) {
-    if (!is_date_valid($name)) {
-        return "Дата не соответствует требуемому формату или несуществующая";
-    }
+    $post_date = get_post_value($name);
 
-    $current_date = date_create('now');
-    $post_date = date_create(get_post_value($name));
+    // если передана какая-либо строка (дата), то выполняем проверку
+    if ($post_date !== '') {
+        if (!is_date_valid($post_date)) {
+            return "Дата не соответствует требуемому формату или несуществующая";
+        }
 
-    if ($post_date < $current_date) {
-        return "Дата должна быть больше или равна текущей";
+        $current_date = date_create('now');
+        $checked_date = date_create($post_date);
+
+        if ($checked_date < $current_date) {
+            return "Дата должна быть больше или равна текущей";
+        }
     }
 
     return null;
