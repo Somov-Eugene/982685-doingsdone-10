@@ -37,7 +37,7 @@
 
             <select class="form__input form__input--select <?= isset($errors['project']) ? 'form__input--error' : '' ?>" name="project" id="project">
             <?php foreach ($projects as $project): ?>
-                <option value="<?= $project['id']; ?>" <?php if ($project['id'] === ($task['project'] ?? '')): ?>selected<?php endif; ?>>
+                <option value="<?= $project['id']; ?>" <?php if ($project['id'] == ($task['project'] ?? '')): ?>selected<?php endif; ?>>
                     <?= strip_tags($project['name']); ?>
                 </option>
             <?php endforeach; ?>
@@ -68,6 +68,10 @@
                 <label class="button button--transparent" for="file">
                     <span>Выберите файл</span>
                 </label>
+
+                <?php if (isset($errors['file'])) : ?>
+                    <p class="form__message"><?= $errors['file'] ?></p>
+                <?php endif ?>
             </div>
         </div>
 
