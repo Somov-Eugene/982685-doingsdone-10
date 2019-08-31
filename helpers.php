@@ -68,13 +68,13 @@ function validate_date($name) {
     $post_date = get_post_value($name);
 
     // если передана какая-либо строка (дата), то выполняем проверку
-    if ($post_date !== '') {
+    if (!empty($post_date)) {
         if (!is_date_valid($post_date)) {
             return "Дата не соответствует требуемому формату или несуществующая";
         }
 
-        $current_date = date_create('now');
-        $checked_date = date_create($post_date);
+        $current_date = strtotime(date('Y-m-d'));
+        $checked_date = strtotime($post_date);
 
         if ($checked_date < $current_date) {
             return "Дата должна быть больше или равна текущей";
