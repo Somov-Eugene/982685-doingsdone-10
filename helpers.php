@@ -1,5 +1,102 @@
 <?php
 /**
+ * Проверяет поле в массиве $_POST и возвращает его значение, если поле существует
+ *
+ * @param string $name Название поля
+ *
+ * @return string Значение поля, если оно существует или пустую строку в противном случае
+ */
+function get_post_value($name) {
+    return $_POST($name) ?? '';
+}
+
+/**
+ * Проверяет email на корректность
+ *
+ * @param string $name Название поля
+ *
+ * @return string Сообщение об ошибке, если значение поля некорректное или null, если ошибки нет
+ */
+function validate_email($name) {
+    if (!filter_input(INPUT_POST, $name, FILTER_VALIDATE_EMAIL)) {
+        return "Введите корректный email";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет заполненность поля
+ *
+ * @param string $name Название поля
+ *
+ * @return string Сообщение об ошибке, если значение поля некорректное или null, если ошибки нет
+ */
+function validate_filled($name) {
+    if (empty($_POST[$name])) {
+        return "Это поле должно быть заполнено";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет длину введенного значения
+ *
+ * @param string $name Название поля
+ *
+ * @return string Сообщение об ошибке, если значение поля некорректное или null, если ошибки нет
+ */
+function validate_length($name, $min, $max) {
+    $len = strlen(get_post_value($name));
+
+    if ($len < $min or $len > $max) {
+        return "Значение должно быть от $min до $max символов";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет допустимость и формат даты
+ *
+ * @param string $name Название поля
+ *
+ * @return string Сообщение об ошибке, если значение поля некорректное или null, если ошибки нет
+ */
+function validate_date($name) {
+    if (!is_date_valid($name)) {
+        return "Дата не соответствует требуемому формату или несуществующая";
+    }
+
+    $current_date = date_create('now');
+    $post_date = date_create(get_post_value($name));
+
+    if ($post_date < $current_date) {
+        return "Дата должна быть больше или равна текущей";
+    }
+
+    return null;
+}
+
+/**
+ * Проверяет идентификатор выбранного проекта, что он ссылается на реально существующий проект
+ *
+ * @param string $name Название поля
+ *
+ * @return string Сообщение об ошибке, если значение поля некорректное или null, если ошибки нет
+ */
+function validate_project($name, $allowed_list) {
+    $id = get_post_value($name);
+
+    if (!in_array($id, $allowed_list)) {
+        return "Указан несуществующий проект";
+    }
+
+    return null;
+}
+
+/**
  * Проверяет переданную дату на соответствие формату 'ГГГГ-ММ-ДД'
  *
  * Примеры использования:
