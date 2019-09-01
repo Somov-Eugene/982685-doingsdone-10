@@ -1,34 +1,9 @@
 <?php
-require_once 'helpers.php';
-require_once 'functions.php';
-require_once 'database.php';
+require_once 'auth_user.php';
 
 $page_title = "Дела в порядке - Добавление задачи";
-$user_name = "Константин";
-$user_email = 'kkk@gmail.com';
-$user_id = 0;
 
-$projects = [];
-$project_ids = [];
-
-// подключение к MySQL
-$db_link = db_init('localhost', 'root', '', '982685-doingsdone-10');
-
-if (!$db_link) {
-    // oшибка подключения к БД
-    $errorMsg = 'Ошибка подключения к БД. Дальнейшая работа сайта невозможна!';
-    exit($errorMsg);
-}
-
-// ОК: cоединение установлено
-
-// получение ID текущего пользователя
-$user = get_user_by_email($db_link, $user_email);
-if ($user) {
-    $user_id = $user["id"];
-}
-
-// получение списка проектов текущего пользователя
+// получение списка проектов пользователя
 $projects = get_user_projects($db_link, $user_id);
 $project_ids = array_column($projects, 'id');
 
