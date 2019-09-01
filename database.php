@@ -276,11 +276,11 @@ function is_exist_project(mysqli $link, int $user_id, int $project_id) {
  *
  * @return string ID добавленной записи
  */
-function add_user_task($link, $new_task, $user_id) {
+function add_user_task($link, $new_task) {
     $result = '';
 
     $sql = "INSERT INTO tasks (`name`, `file`, `dt_completion`, `user_id`, `project_id`) VALUES (?, ?, ?, ?, ?)";
-    $insert_id = db_insert_data($link, $sql, [ $new_task['name'], $new_task['file'], $new_task['date'], $user_id, $new_task['project'] ]);
+    $insert_id = db_insert_data($link, $sql, [ $new_task['name'], $new_task['file'], $new_task['date'], $new_task['user_id'], $new_task['project'] ]);
 
     if ($insert_id) {
         $result = $insert_id;
