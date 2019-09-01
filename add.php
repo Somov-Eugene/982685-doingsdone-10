@@ -91,8 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     else {
         // ошибок нет - добавляем новую запись в БД
-        $sql = "INSERT INTO tasks (`name`, `file`, `dt_completion`, `user_id`, `project_id`) VALUES (?, ?, ?, ?, ?)";
-        $task_id = db_insert_data($db_link, $sql, [ $task['name'], $task['file'], $task['date'], $user_id, $task['project'] ]);
+
+        $task_id = add_user_task($db_link, $task, $user_id);
 
         if (empty($task_id)) {
             $errorMsg = 'Ошибка при добавлении новой задачи';

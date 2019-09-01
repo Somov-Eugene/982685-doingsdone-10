@@ -266,3 +266,25 @@ function is_exist_project(mysqli $link, int $user_id, int $project_id) {
 
     return $result;
 }
+
+
+/**
+ * Добавляет задачу для указанного пользователя
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $new_task array Массив с параметрами задачи
+ *
+ * @return string ID добавленной записи
+ */
+function add_user_task($link, $new_task, $user_id) {
+    $result = '';
+
+    $sql = "INSERT INTO tasks (`name`, `file`, `dt_completion`, `user_id`, `project_id`) VALUES (?, ?, ?, ?, ?)";
+    $insert_id = db_insert_data($link, $sql, [ $new_task['name'], $new_task['file'], $new_task['date'], $user_id, $new_task['project'] ]);
+
+    if ($insert_id) {
+        $result = $insert_id;
+    }
+
+    return $result;
+}
