@@ -7,16 +7,25 @@ $page_title = "Дела в порядке - Добавление задачи";
 $projects = get_user_projects($db_link, $user_id);
 $project_ids = array_column($projects, 'id');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // форма отправлена
+// в пустую форму передаем пустые значения
+$task = [
+    'name' => '',
+    'project' => '',
+    'date' => '',
+    'file' => '',
+    'user_id' => $user_id
+];
 
+// ошибки валидации
+$errors = [];
+
+// если форма была отправлена
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // сохраняем переданные поля формы
-    $task = [
-        'name' => get_post_value('name'),
-        'project' => get_post_value('project'),
-        'date' => empty($_POST['date']) ? null : get_post_value('date'),
-        'file' => get_post_value('file')
-    ];
+    $task['name'] = get_post_value('name');
+    $task['project'] = get_post_value('project');
+    $task['date'] = empty($_POST['date']) ? null : get_post_value('date');
+    $task['file'] = empty($_POST['file']) ? null : get_post_value('file');
 
     // обязательные к заполнению поля формы
     $required_fields = ['name', 'project'];
@@ -33,9 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return validate_date('date');
         }
     ];
-
-    // ошибки валидации
-    $errors = [];
 
     foreach ($task as $key => $value) {
         // для каждого поля проверяем,
@@ -67,52 +73,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // переносим файл в публичную директорию и сохраняем ссылку
             $temp_name = $_FILES['file']['tmp_name'];
-            $file_name = uniqid('dd_') . $_FILES['file']['name'];
+            $file_name = uniqid('dd_') . '_'. $_FILES['file']['name'];
             $file_path = __DIR__ . '/uploads/';
             $file_url = '/uploads/' . $file_name;
             $task['file'] = $file_name;
 
             move_uploaded_file($temp_name, $file_path . $file_name);
         }
-    } else if (isset($_FILES['file']['error']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
+    }
+    else if (isset($_FILES['file']['error']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
         $errors['file'] = 'Не удалось загрузить файл';
     }
 
-    // если есть ошибки валидации, то показать их
-    if (count($errors)) {
-        $main_content = include_template(
-            'form-task.php',
-            [
-                'task' => $task,
-                'errors' => $errors,
-                'projects' => $projects
-            ]
-        );
-    }
-    else {
-        // ошибок нет - добавляем новую запись в БД
-
-        $task_id = add_user_task($db_link, $task, $user_id);
+    // если ошибок валидации нет, то
+    if (count($errors) === 0) {
+        // добавляем новую запись в БД
+        $task_id = add_user_task($db_link, $task);
 
         if (empty($task_id)) {
             $errorMsg = 'Ошибка при добавлении новой задачи';
-            die($errorMsg);
+            exit($errorMsg);
         }
 
-        // При успешном сохранении формы, переадресовывать пользователя на главную страницу
+        // при успешном сохранении формы, переадресовываем пользователя на главную страницу
         header("Location: index.php");
     }
 }
-else {
-    // форма не отправлена - показать пустую форму
-    $main_content = include_template(
-        'form-task.php',
-        [
-            'projects' => $projects
-        ]
-    );
-}
 
+// формируем основной контент (форму)
+$main_content = include_template(
+    'form-task.php',
+    [
+        'task' => $task,
+        'errors' => $errors,
+        'projects' => $projects
+    ]
+);
+
+// добавляем основной контент в layout
 $layout_content = include_template(
     'layout.php',
     [
