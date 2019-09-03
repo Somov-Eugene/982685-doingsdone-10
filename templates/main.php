@@ -8,7 +8,7 @@
                 <a class="main-navigation__list-item-link <?= mark_active_project($project['id']) ?>" href="<?= get_link_to_project($project['id']) ?>">
                     <?= strip_tags($project['name']) ?>
                 </a>
-                <span class="main-navigation__list-item-count"><?= number_project_tasks($tasks, $project['name']); ?></span>
+                <span class="main-navigation__list-item-count"><?= $project['cnt_tasks']; ?></span>
             </li>
             <?php endforeach; ?>
         </ul>
@@ -52,9 +52,11 @@
                 </label>
             </td>
 
-            <!--td class="task__file">
-                <a class="download-link" href="#">Home.psd</a>
-            </td-->
+            <td class="task__file">
+            <?php if (!is_null($task['file'])): ?>
+                <a class="download-link" href="<?= '/uploads/' . $task['file']; ?>"><?= strip_tags($task['file']) ?></a>
+            <?php endif; ?>
+            </td>
 
             <td class="task__date"><?= strip_tags($task['date_completion']) ?></td>
         </tr>

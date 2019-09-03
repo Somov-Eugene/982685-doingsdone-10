@@ -150,7 +150,7 @@ function get_user_by_email($link, $email) {
 
 
 /**
- * Возвращает список проектов переданного пользователя
+ * Возвращает список проектов переданного пользователя и количество задач в каждом из проектов
  *
  * @param $link mysqli Ресурс соединения
  * @param $user_id int ID пользователя
@@ -160,7 +160,16 @@ function get_user_by_email($link, $email) {
 function get_user_projects($link, $user_id) {
     $result = [];
 
-    $sql = "SELECT p.`id`, p.`name` FROM projects p WHERE p.`user_id` = ?";
+    $sql = "
+        SELECT
+          p.`id`,
+          p.`name`,
+          COUNT(t.`id`) AS cnt_tasks
+        FROM projects p
+        LEFT JOIN tasks t ON t.`project_id` = p.`id`
+        WHERE p.`user_id` = ?
+        GROUP BY p.`id`
+        ";
     $sql_result = db_fetch_data($link, $sql, [$user_id]);
 
     if ($sql_result) {
@@ -187,11 +196,12 @@ function get_user_tasks_all($link, $user_id) {
           t.`is_completed`,
           t.`name`,
           t.`dt_completion` AS date_completion,
+          t.`file`,
           p.`name` AS project_name
         FROM tasks t
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
         WHERE t.`user_id` = ?
-        ";
+        ORDER BY t.`dt_add` DESC";
     $sql_result = db_fetch_data($link, $sql, [$user_id, $user_id]);
 
     if ($sql_result) {
@@ -219,11 +229,13 @@ function get_user_tasks_project($link, $user_id, $project_id) {
           t.`is_completed`,
           t.`name`,
           t.`dt_completion` AS date_completion,
+          t.`file`,
           p.`name` AS project_name
         FROM tasks t
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
         WHERE t.`user_id` = ?
-        AND p.`id` = ?";
+        AND p.`id` = ?
+        ORDER BY t.`dt_add` DESC";
     $sql_result = db_fetch_data($link, $sql, [$user_id, $user_id, $project_id]);
 
     if ($sql_result) {
@@ -250,6 +262,28 @@ function is_exist_project(mysqli $link, int $user_id, int $project_id) {
 
     if ($sql_result) {
         $result = ($sql_result[0]['cnt'] !== 0) ? true : false;
+    }
+
+    return $result;
+}
+
+
+/**
+ * Добавляет задачу для указанного пользователя
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $new_task array Массив с параметрами задачи
+ *
+ * @return string ID добавленной записи
+ */
+function add_user_task($link, $new_task) {
+    $result = '';
+
+    $sql = "INSERT INTO tasks (`name`, `file`, `dt_completion`, `user_id`, `project_id`) VALUES (?, ?, ?, ?, ?)";
+    $insert_id = db_insert_data($link, $sql, [ $new_task['name'], $new_task['file'], $new_task['date'], $new_task['user_id'], $new_task['project'] ]);
+
+    if ($insert_id) {
+        $result = $insert_id;
     }
 
     return $result;
