@@ -288,3 +288,49 @@ function add_user_task($link, $new_task) {
 
     return $result;
 }
+
+
+/**
+ * Определяет, имется ли переданный e-mail в БД пользователей
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param string $email Проверяемый e-mail
+ * @return boolean Логическое значение (true/false)
+ */
+function is_exist_user(mysqli $link, string $email) {
+    $result = false;
+
+    $sql = "SELECT count(*) AS cnt FROM users u WHERE u.`email` = ?";
+    $sql_result = db_fetch_data($link, $sql, [$email]);
+
+    if ($sql_result) {
+        $result = ($sql_result[0]['cnt'] !== 0) ? true : false;
+    }
+
+    return $result;
+}
+
+
+/**
+ * Добавляет нового пользователя
+ *
+ * @param $link mysqli Ресурс соединения
+ * @param $new_user array Массив с параметрами пользователя
+ *
+ * @return string ID добавленной записи
+ */
+function register_user($link, $new_user) {
+    $result = '';
+
+    // получаем hash от переданного пароля
+    $enc_password = password_hash($new_user['password'], PASSWORD_DEFAULT);
+
+    $sql = "INSERT INTO users (`email`, `username`, `password`) VALUES (?, ?, ?)";
+    $insert_id = db_insert_data($link, $sql, [ $new_user['email'], $new_user['name'], $enc_password ]);
+
+    if ($insert_id) {
+        $result = $insert_id;
+    }
+
+    return $result;
+}
