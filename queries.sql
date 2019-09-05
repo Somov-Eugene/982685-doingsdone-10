@@ -3,9 +3,9 @@
 */
 INSERT INTO users (`email`, `username`, `password`)
 VALUES
-  ('kkk@gmail.com', 'Константин', 'password1'),
-  ('manunya123@mail.ru', 'Мария', 'password2'),
-  ('fe2000@yandex.ru', 'Фёдор', 'password3');
+  ('kkk@gmail.com', 'Константин', '$2y$10$oujcOXU1d9CiDbibbbT.VOnnpMcWL/l.dIHLp2.v2nSB3jQX78nwq'),  -- password1
+  ('manunya123@mail.ru', 'Мария', '$2y$10$WGEkqlTSuxjeeqVXyUj89edthpiPAG3A81R/UjUXAz4Mad6mQm9FO'),  -- password2
+  ('fe2000@yandex.ru', 'Фёдор', '$2y$10$xr6m/4OA8Zxw2lrkt/k8vO7GT4B4esbegOqL10BtdxGcLCP2dbR02');    -- password3
 
 
 /*
