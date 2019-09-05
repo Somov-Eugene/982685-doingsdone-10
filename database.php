@@ -112,7 +112,7 @@ function db_fetch_data($link, $sql, $data = []) {
  * @param $sql string SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
  *
- * @return string ID добавленной записи
+ * @return mixed ID добавленной записи
  */
 function db_insert_data($link, $sql, $data = []) {
     $stmt = db_get_prepare_stmt($link, $sql, $data);
@@ -250,8 +250,8 @@ function get_user_tasks_project($link, $user_id, $project_id) {
  * Определяет имется ли переданный ID проекта у данного пользователя
  *
  * @param $link mysqli Ресурс соединения
- * @param int $user_id ID пользователя
- * @param int $id_project_id ID проверяемого проекта
+ * @param $user_id int ID пользователя
+ * @param $id_project_id int ID проверяемого проекта
  * @return boolean Логическое значение (true/false)
  */
 function is_exist_project(mysqli $link, int $user_id, int $project_id) {
@@ -274,13 +274,21 @@ function is_exist_project(mysqli $link, int $user_id, int $project_id) {
  * @param $link mysqli Ресурс соединения
  * @param $new_task array Массив с параметрами задачи
  *
- * @return string ID добавленной записи
+ * @return mixed ID добавленной записи
  */
 function add_user_task($link, $new_task) {
-    $result = '';
+    $result = null;
+
+    $data = [
+        $new_task['name'],
+        $new_task['file'],
+        $new_task['date'],
+        $new_task['user_id'],
+        $new_task['project']
+    ];
 
     $sql = "INSERT INTO tasks (`name`, `file`, `dt_completion`, `user_id`, `project_id`) VALUES (?, ?, ?, ?, ?)";
-    $insert_id = db_insert_data($link, $sql, [ $new_task['name'], $new_task['file'], $new_task['date'], $new_task['user_id'], $new_task['project'] ]);
+    $insert_id = db_insert_data($link, $sql, $data);
 
     if ($insert_id) {
         $result = $insert_id;
@@ -294,20 +302,13 @@ function add_user_task($link, $new_task) {
  * Определяет, имется ли переданный e-mail в БД пользователей
  *
  * @param $link mysqli Ресурс соединения
- * @param string $email Проверяемый e-mail
+ * @param $email string Проверяемый e-mail
  * @return boolean Логическое значение (true/false)
  */
 function is_exist_user(mysqli $link, string $email) {
-    $result = false;
+    $result = get_user_by_email($link, $email);
 
-    $sql = "SELECT count(*) AS cnt FROM users u WHERE u.`email` = ?";
-    $sql_result = db_fetch_data($link, $sql, [$email]);
-
-    if ($sql_result) {
-        $result = ($sql_result[0]['cnt'] !== 0) ? true : false;
-    }
-
-    return $result;
+    return (empty($result)) ? false : true;
 }
 
 
@@ -316,17 +317,19 @@ function is_exist_user(mysqli $link, string $email) {
  *
  * @param $link mysqli Ресурс соединения
  * @param $new_user array Массив с параметрами пользователя
- *
- * @return string ID добавленной записи
+ * @return mixed ID добавленной записи
  */
 function register_user($link, $new_user) {
-    $result = '';
+    $result = null;
 
-    // получаем hash от переданного пароля
-    $enc_password = password_hash($new_user['password'], PASSWORD_DEFAULT);
+    $data = [
+        $new_user['email'],
+        $new_user['name'],
+        $new_user['password']
+    ];
 
     $sql = "INSERT INTO users (`email`, `username`, `password`) VALUES (?, ?, ?)";
-    $insert_id = db_insert_data($link, $sql, [ $new_user['email'], $new_user['name'], $enc_password ]);
+    $insert_id = db_insert_data($link, $sql, $data);
 
     if ($insert_id) {
         $result = $insert_id;
