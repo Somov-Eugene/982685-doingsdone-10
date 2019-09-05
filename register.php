@@ -1,18 +1,7 @@
 <?php
-require_once 'helpers.php';
-require_once 'functions.php';
-require_once 'database.php';
+require_once 'db_connect.php';
 
 $page_title = "Дела в порядке - Регистрация аккаунта";
-
-// подключение к MySQL
-$db_link = db_init('localhost', 'root', '', '982685-doingsdone-10');
-
-if (!$db_link) {
-    $errorMsg = 'Ошибка подключения к БД. Дальнейшая работа сайта невозможна!';
-    exit($errorMsg);
-}
-// ОК: cоединение установлено
 
 // в пустую форму передаем пустые значения
 $user = [
@@ -68,24 +57,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // если форма заполнена без ошибок, то
+    // если форма заполнена без ошибок, то проверяем, имеется ли переданный e-mail в базе
+    if (count($errors) === 0 and is_exist_user($db_link, $user['email'])) {
+        $errors['email'] = 'Пользователь с таким e-mail уже зарегистрирован';
+    }
+
     if (count($errors) === 0) {
-        // проверяем, имеется ли переданный e-mail в базе
-        if (is_exist_user($db_link, $user['email'])) {
-            $errors['email'] = 'Пользователь с таким e-mail уже зарегистрирован';
-        }
-        else {
-            // не существует --> добавляем нового пользователя в БД
-            $user_id = register_user($db_link, $user);
+        // e-mail в базе не существует
 
-            if (empty($user_id)) {
-                $errorMsg = 'Ошибка при регистрации нового пользователя';
-                exit($errorMsg);
-            }
+        // получаем hash от переданного пароля
+        $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
 
-            // при успешном добавлении записи переадресовываем на главную страницу
-            header("Location: index.php");
+        // добавляем нового пользователя в БД
+        $user_id = register_user($db_link, $user);
+
+        if (is_null($user_id)) {
+            $errorMsg = 'Ошибка при регистрации нового пользователя';
+            exit($errorMsg);
         }
+
+        // при успешном добавлении записи переадресовываем на главную страницу
+        header("Location: index.php");
     }
 }
 
