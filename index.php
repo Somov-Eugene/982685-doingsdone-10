@@ -1,6 +1,6 @@
 <?php
 require_once 'db_connect.php';
-require_once 'auth_user.php';
+require_once 'get_user.php';
 
 $page_title = "Дела в порядке";
 
