@@ -1,11 +1,7 @@
 <?php
+// Mock-data
+$user_email = 'kkk@gmail.com';
+
 // получение данных аутентифицированного пользователя
-$user = get_user_by_email($db_link, $user_email);
-
-if (empty($user)) {
-    $errorMsg = 'Ошибка получения данных пользователя.';
-    exit($errorMsg);
-}
-
-$user_name = $user['username'];
-$user_id = (integer)$user['id'];
+$result = get_user_by_email($link, $user_email);
+$user = $result[0];
