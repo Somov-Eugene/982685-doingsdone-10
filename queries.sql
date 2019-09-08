@@ -1,7 +1,7 @@
 /*
 // Добавляем пользователей
 */
-INSERT INTO users (`email`, `username`, `password`)
+INSERT INTO users (`email`, `name`, `password`)
 VALUES
   ('kkk@gmail.com', 'Константин', '$2y$10$oujcOXU1d9CiDbibbbT.VOnnpMcWL/l.dIHLp2.v2nSB3jQX78nwq'),  -- password1
   ('manunya123@mail.ru', 'Мария', '$2y$10$WGEkqlTSuxjeeqVXyUj89edthpiPAG3A81R/UjUXAz4Mad6mQm9FO'),  -- password2
