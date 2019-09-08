@@ -160,7 +160,6 @@ function validate_date($check, $field)
         return 'Дата должна быть больше или равна текущей';
     }
 
-
     return null;
 }
 
