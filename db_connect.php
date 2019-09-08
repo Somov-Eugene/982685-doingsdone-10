@@ -1,18 +1,11 @@
 <?php
-date_default_timezone_set('Europe/Moscow');
-setlocale(LC_ALL, 'ru-RU');
+$link = mysqli_connect('mysql', 'root', '', '982685-doingsdone-10');
 
-require_once 'helpers.php';
-require_once 'functions.php';
-require_once 'database.php';
-
-// Mock-data
-$user_email = 'kkk@gmail.com';
-
-// подключение к MySQL
-$db_link = db_init('localhost', 'root', '', '982685-doingsdone-10');
-
-if (!$db_link) {
+if (!$link) {
     $errorMsg = 'Ошибка подключения к БД. Дальнейшая работа сайта невозможна!';
     exit($errorMsg);
 }
+
+mysqli_set_charset($link, 'utf8');
+
+mysqli_options($link, MYSQLI_OPT_INT_AND_FLOAT_NATIVE, 1);
