@@ -1,13 +1,14 @@
 <?php
 /**
- * Подсчитывает количество задач для переданного проекта
+ * @deprecated Подсчитывает количество задач для переданного проекта
  *
- * @param $tasks_list array Список задач
- * @param $project_name string Название проекта
+ * @param array $tasks_list Список задач
+ * @param string $project_name Название проекта
  *
  * @return int Количество задач проекта
  */
-function number_project_tasks(array $tasks_list, string $project_name) {
+function number_project_tasks(array $tasks_list, string $project_name)
+{
     $task_counter = 0;
 
     foreach ($tasks_list as $task) {
@@ -23,11 +24,12 @@ function number_project_tasks(array $tasks_list, string $project_name) {
 /**
  * Подсчитывает количество часов до выполнения задачи
  *
- * @param $date_completion date Требуемая дата выполнения задачи или null, если задача бессрочная
+ * @param date $date_completion Требуемая дата выполнения задачи или null, если задача бессрочная
  *
  * @return int Количество оставшихся часов или null, если задача бессрочная
  */
-function hours_left_deadline($date_completion) {
+function hours_left_deadline($date_completion)
+{
     if (is_null($date_completion)) {
         return null;
     }
@@ -44,12 +46,13 @@ function hours_left_deadline($date_completion) {
 /**
  * Добавляет дополнительные классы для задач, у которых истекает срок выполнения и для выполненных задач
  *
- * @param $tasks_list array Список задач
- * @param $is_show_complete_tasks bool Признак, показывать ли выполненные задачи
+ * @param array $tasks_list Список задач
+ * @param bool $is_show_complete_tasks Признак, показывать ли выполненные задачи
  *
  * @return string Название класса
  */
-function additional_task_classes(array $task, bool $is_show_complete_tasks) {
+function additional_task_classes(array $task, bool $is_show_complete_tasks)
+{
     if (boolval($task['is_completed']) and $is_show_complete_tasks) {
         return 'task--completed';
     }
@@ -66,11 +69,12 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks) {
 /**
  * Формирует ссылку на проект с указанным ID
  *
- * @param $project_id int ID проекта
+ * @param int $project_id ID проекта
  *
  * @return string Абсолютный путь к текущей странице с GET-запросом
  */
-function get_link_to_project(int $project_id) {
+function get_link_to_project(int $project_id)
+{
     return '/index.php?project_id=' . $project_id;
 }
 
@@ -78,12 +82,13 @@ function get_link_to_project(int $project_id) {
 /**
  * Добавляет дополнительный класс для выделения в меню активного проекта
  *
- * @param $project_id int ID проекта
+ * @param int $project_id ID проекта
  *
  * @return string Название класса
  */
 
-function mark_active_project(int $project_id) {
+function mark_active_project(int $project_id)
+{
     if (isset($_GET['project_id']) and ((int)$_GET['project_id'] === $project_id)) {
         return 'main-navigation__list-item--active';
     }
