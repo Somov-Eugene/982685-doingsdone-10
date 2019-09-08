@@ -1,5 +1,5 @@
 <?php
-$link = mysqli_connect('mysql', 'root', '', '982685-doingsdone-10');
+$link = mysqli_connect('localhost', 'root', '', '982685-doingsdone-10');
 
 if (!$link) {
     $errorMsg = 'Ошибка подключения к БД. Дальнейшая работа сайта невозможна!';
