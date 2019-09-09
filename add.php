@@ -1,22 +1,22 @@
 <?php
-require_once 'auth_user.php';
+require_once 'init.php';
+require_once 'get_user.php';
 
 $page_title = "Дела в порядке - Добавление задачи";
 
 // получение списка проектов пользователя
-$projects = get_user_projects($db_link, $user_id);
+$projects = get_user_projects($link, $user['id']);
 $project_ids = array_column($projects, 'id');
 
-// в пустую форму передаем пустые значения
+// параметры задачи со значениями по умолчанию
 $task = [
     'name' => '',
     'project' => '',
     'date' => '',
     'file' => '',
-    'user_id' => $user_id
+    'user_id' => $user['id']
 ];
 
-// ошибки валидации
 $errors = [];
 
 // если форма была отправлена
@@ -27,42 +27,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $task['date'] = empty($_POST['date']) ? null : get_post_value('date');
     $task['file'] = empty($_POST['file']) ? null : get_post_value('file');
 
-    // обязательные к заполнению поля формы
-    $required_fields = ['name', 'project'];
-
     // правила валидации полей
     $rules = [
-        'name' => function () {
-            return validate_filled('name');
+        'name' => function ($task) {
+            return validate_filled($task, 'name');
         },
-        'project' => function () use ($project_ids) {
-            return validate_project('project', $project_ids);
+        'project' => function ($task) use ($project_ids) {
+            return validate_project($project_ids, $task['project']);
         },
-        'date' => function () {
-            return validate_date('date');
+        'date' => function ($task) {
+            return validate_date($task, 'date');
         }
     ];
 
-    foreach ($task as $key => $value) {
-        // для каждого поля проверяем,
-        // есть ли для этого поля правило валидации
-        if ( isset($rules[$key]) ) {
-            // получаем функцию валидации и затем вызываем ее
-            $rule = $rules[$key];
-            // возможные ошибки сохраняем в массиве $errors
-            $errors[$key] = $rule();
+    foreach ($rules as $field => $validator) {
+        if (isset($task[$field]) && is_callable($validator)) {
+            $errors[$field] = call_user_func($validator, $task, $field);
         }
     }
 
     // фильтруем массив, удаляя из него null
     $errors = array_filter($errors);
-
-    // проверка на пустое значение
-    foreach($required_fields as $field) {
-        if (empty($_POST[$field])) {
-            $errors[$field] = 'Это поле требуется заполнить';
-        }
-    }
 
     // если к задаче был прикреплен файл, то проверяем загружен ли файл
     if (isset($_FILES['file']['error']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
@@ -88,15 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // если ошибок валидации нет, то
     if (count($errors) === 0) {
         // добавляем новую запись в БД
-        $task_id = add_user_task($db_link, $task);
+        $task_id = add_user_task($link, $task);
 
-        if (empty($task_id)) {
-            $errorMsg = 'Ошибка при добавлении новой задачи';
-            exit($errorMsg);
+        if (!empty($task_id)) {
+            header("Location: index.php");
         }
 
-        // при успешном сохранении формы, переадресовываем пользователя на главную страницу
-        header("Location: index.php");
     }
 }
 
@@ -116,7 +98,7 @@ $layout_content = include_template(
     [
 	    'main_content' => $main_content,
         'page_title'=> $page_title,
-        'user_name' => $user_name
+        'user_name' => $user['name']
     ]
 );
 

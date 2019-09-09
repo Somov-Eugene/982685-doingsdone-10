@@ -63,12 +63,12 @@ CREATE INDEX idx_tasks_dt_completion ON tasks (`dt_completion`);
 //    пароль: хэшированный пароль пользователя.
 */
 CREATE TABLE users (
-  `id`       	  INT AUTO_INCREMENT PRIMARY KEY,
-  `dt_add`   	  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `email`    	  VARCHAR(255) NOT NULL UNIQUE,
-  `username` 	  VARCHAR(255) NOT NULL,
-  `password` 	  VARCHAR(255) NOT NULL
+  `id`            INT AUTO_INCREMENT PRIMARY KEY,
+  `dt_add`   	    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `email`    	    VARCHAR(255) NOT NULL UNIQUE,
+  `name`          VARCHAR(255) NOT NULL,
+  `password` 	    CHAR(64) NOT NULL
 );
 
 CREATE UNIQUE INDEX idx_users_email ON users (`email`);
-CREATE INDEX idx_users_name ON users (`username`);
+CREATE INDEX idx_users_name ON users (`name`);

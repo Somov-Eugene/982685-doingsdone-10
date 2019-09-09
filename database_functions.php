@@ -1,41 +1,15 @@
 <?php
 /**
- * Создает новое подключение к БД и настраивает параметры подключения
- *
- * @param $host string Имя хоста БД
- * @param $user string Имя пользователя БД
- * @param $password string Пароль БД
- * @param $database string Название БД
- *
- * @return mysqli Ресурс соединения или false в случае ошибки
- */
-function db_init($host, $user, $password, $database) {
-    $link = mysqli_connect($host, $user, $password, $database);
-
-    if ($link) {
-        // ОК: cоединение установлено
-
-        // установка кодировки
-        mysqli_set_charset($link, 'utf8');
-
-        // включить преобразование типов для INT и FLOAT
-        mysqli_options($link, MYSQLI_OPT_INT_AND_FLOAT_NATIVE, 1);
-    }
-
-    return $link;
-}
-
-
-/**
  * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
  *
- * @param $link mysqli Ресурс соединения
- * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param mysqli $link Ресурс соединения
+ * @param string $sql SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
  *
  * @return mysqli_stmt Подготовленное выражение
  */
-function db_get_prepare_stmt($link, $sql, $data = []) {
+function db_get_prepare_stmt($link, $sql, $data = [])
+{
     $stmt = mysqli_prepare($link, $sql);
 
     if ($stmt === false) {
@@ -84,13 +58,14 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
 /**
  * Возвращает результат выполнения SELECT-запроса
  *
- * @param $link mysqli Ресурс соединения
- * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param mysqli $link Ресурс соединения
+ * @param string $sql SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
  *
  * @return array Результат выполнения запроса в виде ассоциативного массива или пустой массив в случае ошибки
  */
-function db_fetch_data($link, $sql, $data = []) {
+function db_fetch_data($link, $sql, $data = [])
+{
     $result = [];
 
     $stmt = db_get_prepare_stmt($link, $sql, $data);
@@ -108,13 +83,14 @@ function db_fetch_data($link, $sql, $data = []) {
 /**
  * Добавляет в БД новую запись и возвращает ID этой записи
  *
- * @param $link mysqli Ресурс соединения
- * @param $sql string SQL запрос с плейсхолдерами вместо значений
+ * @param mysqli $link Ресурс соединения
+ * @param string $sql SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
  *
- * @return string ID добавленной записи
+ * @return mixed ID добавленной записи
  */
-function db_insert_data($link, $sql, $data = []) {
+function db_insert_data($link, $sql, $data = [])
+{
     $stmt = db_get_prepare_stmt($link, $sql, $data);
     $result = mysqli_stmt_execute($stmt);
 
@@ -129,37 +105,33 @@ function db_insert_data($link, $sql, $data = []) {
 /**
  * Возвращает учетные данные текущего пользователя
  *
- * @param $link mysqli Ресурс соединения
- * @param $user_name string e-mail пользователя
+ * @param mysqli $link Ресурс соединения
+ * @param string $user_name e-mail пользователя
  *
  * @return array Данные пользователя (ассоциативный массив)
  */
-function get_user_by_email($link, $email) {
-    $result = [];
+function get_user_by_email($link, $email)
+{
+    $sql = "
+        SELECT *
+        FROM users u
+        WHERE u.`email` = ?
+    ";
 
-    $sql = "SELECT * FROM users u WHERE u.`email` = ?";
-    $sql_result = db_fetch_data($link, $sql, [$email]);
-
-    if ($sql_result) {
-        // одна уникальная запись
-        $result = $sql_result[0];
-    }
-
-    return $result;
+    return db_fetch_data($link, $sql, [$email]);
 }
 
 
 /**
  * Возвращает список проектов переданного пользователя и количество задач в каждом из проектов
  *
- * @param $link mysqli Ресурс соединения
- * @param $user_id int ID пользователя
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
  *
  * @return array Список проектов пользователя (ассоциативный массив)
  */
-function get_user_projects($link, $user_id) {
-    $result = [];
-
+function get_user_projects($link, $user_id)
+{
     $sql = "
         SELECT
           p.`id`,
@@ -170,27 +142,21 @@ function get_user_projects($link, $user_id) {
         WHERE p.`user_id` = ?
         GROUP BY p.`id`
         ";
-    $sql_result = db_fetch_data($link, $sql, [$user_id]);
 
-    if ($sql_result) {
-        $result = $sql_result;
-    }
-
-    return $result;
+    return db_fetch_data($link, $sql, [$user_id]);
 }
 
 
 /**
  * Возвращает список всех задач переданного пользователя
  *
- * @param $link mysqli Ресурс соединения
- * @param $user_id int ID пользователя
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
  *
  * @return array Список задач пользователя (ассоциативный массив)
  */
-function get_user_tasks_all($link, $user_id) {
-    $result = [];
-
+function get_user_tasks_all($link, $user_id)
+{
     $sql = "
         SELECT
           t.`is_completed`,
@@ -201,29 +167,24 @@ function get_user_tasks_all($link, $user_id) {
         FROM tasks t
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
         WHERE t.`user_id` = ?
-        ORDER BY t.`dt_add` DESC";
-    $sql_result = db_fetch_data($link, $sql, [$user_id, $user_id]);
+        ORDER BY t.`dt_add` DESC
+    ";
 
-    if ($sql_result) {
-        $result = $sql_result;
-    }
-
-    return $result;
+    return db_fetch_data($link, $sql, [$user_id, $user_id]);
 }
 
 
 /**
  * Возвращает список задач пользователя по указанному проекту
  *
- * @param $link mysqli Ресурс соединения
- * @param $user_id int ID пользователя
- * @param $project_id int ID проекта
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
+ * @param int $project_id ID проекта
  *
  * @return array Список задач пользователя (ассоциативный массив)
  */
-function get_user_tasks_project($link, $user_id, $project_id) {
-    $result = [];
-
+function get_user_tasks_project($link, $user_id, $project_id)
+{
     $sql = "
         SELECT
           t.`is_completed`,
@@ -235,33 +196,64 @@ function get_user_tasks_project($link, $user_id, $project_id) {
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
         WHERE t.`user_id` = ?
         AND p.`id` = ?
-        ORDER BY t.`dt_add` DESC";
-    $sql_result = db_fetch_data($link, $sql, [$user_id, $user_id, $project_id]);
+        ORDER BY t.`dt_add` DESC
+    ";
 
-    if ($sql_result) {
-        $result = $sql_result;
-    }
-
-    return $result;
+    return db_fetch_data($link, $sql, [$user_id, $user_id, $project_id]);
 }
 
 
 /**
  * Определяет имется ли переданный ID проекта у данного пользователя
  *
- * @param $link mysqli Ресурс соединения
+ * @param mysqli $link Ресурс соединения
  * @param int $user_id ID пользователя
- * @param int $id_project_id ID проверяемого проекта
+ * @param int $project_id ID проверяемого проекта
+ *
  * @return boolean Логическое значение (true/false)
  */
-function is_exist_project(mysqli $link, int $user_id, int $project_id) {
-    $result = false;
+function is_exist_project(mysqli $link, int $user_id, int $project_id)
+{
+    $sql = "
+        SELECT
+          p.`id`
+        FROM projects p
+        WHERE p.`user_id` = ? AND p.`id` = ? LIMIT 1
+    ";
+    $rows = db_fetch_data($link, $sql, [$user_id, $project_id]);
 
-    $sql = "SELECT count(*) AS cnt FROM projects p WHERE p.`user_id` = ? AND p.`id` = ?";
-    $sql_result = db_fetch_data($link, $sql, [$user_id, $project_id]);
+    return count($rows) > 0;
+}
 
-    if ($sql_result) {
-        $result = ($sql_result[0]['cnt'] !== 0) ? true : false;
+
+/**
+ * Добавляет задачу для указанного пользователя
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param array $new_task Массив с параметрами задачи
+ *
+ * @return mixed ID добавленной записи
+ */
+function add_user_task(mysqli $link, array $new_task)
+{
+    $result = null;
+
+    $data = [
+        $new_task['name'],
+        $new_task['file'],
+        $new_task['date'],
+        $new_task['user_id'],
+        $new_task['project']
+    ];
+
+    $sql = "
+        INSERT INTO tasks (`name`, `file`, `dt_completion`, `user_id`, `project_id`)
+        VALUES (?, ?, ?, ?, ?)
+    ";
+    $insert_id = db_insert_data($link, $sql, $data);
+
+    if ($insert_id) {
+        $result = $insert_id;
     }
 
     return $result;
@@ -269,18 +261,44 @@ function is_exist_project(mysqli $link, int $user_id, int $project_id) {
 
 
 /**
- * Добавляет задачу для указанного пользователя
+ * Определяет, имется ли переданный e-mail в БД пользователей
  *
- * @param $link mysqli Ресурс соединения
- * @param $new_task array Массив с параметрами задачи
+ * @param mysqli $link Ресурс соединения
+ * @param string $email Проверяемый e-mail
  *
- * @return string ID добавленной записи
+ * @return boolean Логическое значение (true/false)
  */
-function add_user_task($link, $new_task) {
-    $result = '';
+function is_exist_user(mysqli $link, string $email)
+{
+    $result = get_user_by_email($link, $email);
 
-    $sql = "INSERT INTO tasks (`name`, `file`, `dt_completion`, `user_id`, `project_id`) VALUES (?, ?, ?, ?, ?)";
-    $insert_id = db_insert_data($link, $sql, [ $new_task['name'], $new_task['file'], $new_task['date'], $new_task['user_id'], $new_task['project'] ]);
+    return (empty($result)) ? false : true;
+}
+
+
+/**
+ * Добавляет нового пользователя
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param array $new_user Массив с параметрами пользователя
+ *
+ * @return mixed ID добавленной записи
+ */
+function register_user(mysqli $link, array $new_user)
+{
+    $result = null;
+
+    $data = [
+        $new_user['email'],
+        $new_user['name'],
+        $new_user['password']
+    ];
+
+    $sql = "
+        INSERT INTO users (`email`, `name`, `password`)
+        VALUES (?, ?, ?)
+    ";
+    $insert_id = db_insert_data($link, $sql, $data);
 
     if ($insert_id) {
         $result = $insert_id;
