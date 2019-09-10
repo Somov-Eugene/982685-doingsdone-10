@@ -98,7 +98,7 @@ $layout_content = include_template(
     [
 	    'main_content' => $main_content,
         'page_title'=> $page_title,
-        'user_name' => $user['name']
+        'user' => $user
     ]
 );
 

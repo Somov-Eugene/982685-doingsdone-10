@@ -3,13 +3,12 @@ require_once 'init.php';
 
 session_start();
 
-$page_title = "Дела в порядке - Регистрация аккаунта";
+$page_title = "Дела в порядке - Вход на сайт";
 
 // параметры пользователя со значениями по умолчанию
 $user = [
     'email' => '',
-    'password' => '',
-    'name' => ''
+    'password' => ''
 ];
 
 $errors = [];
@@ -19,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // сохраняем переданные поля формы
     $user['email'] = get_post_value('email');
     $user['password'] = get_post_value('password');
-    $user['name'] = get_post_value('name');
 
     // правила валидации полей
     $rules = [
@@ -28,9 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         },
         'password' => function ($user) {
             return validate_filled($user, 'password');
-        },
-        'name' => function ($user) {
-            return validate_filled($user, 'name');
         }
     ];
 
@@ -44,31 +39,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = array_filter($errors);
 
     // если форма заполнена без ошибок, то проверяем, имеется ли переданный e-mail в базе
-    if (count($errors) === 0 && is_exist_user($link, $user['email'])) {
-        $errors['email'] = 'Пользователь с таким e-mail уже зарегистрирован';
+    if (count($errors) === 0 and !is_exist_user($link, $user['email'])) {
+        $errors['email'] = 'Пользователь с таким e-mail не зарегистрирован';
     }
 
     if (count($errors) === 0) {
-        // получаем hash от переданного пароля
-        $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
+        // находим пользователя с переданным e-mail среди существующих в БД
+        $result = get_user_by_email($link, $user['email']);
 
-        // добавляем нового пользователя в БД
-        $user_id = register_user($link, $user);
+        if (empty($result)) {
+            $errors['password'] = 'Ошибка получения пароля';
+        } else {
+            $user_reg = $result[0];
 
-        if (!empty($user_id)) {
-            $user['id'] = $user_id;
-
-            // сохраняем данные пользователя в сессиии
-            $_SESSION['user'] = $user;
-
-            // и переадресовываем его на главную страницу
-            header("Location: index.php");
+            if (!password_verify($user['password'], $user_reg['password'])) {
+                $errors['password'] = 'Пароль введен неправильно';
+            }
         }
+    }
+
+    if (count($errors) === 0) {
+        // сохраняем данные пользователя в сессиии
+        $_SESSION['user'] = $user_reg;
+
+        // и переадресовываем его на главную страницу
+        header("Location: index.php");
     }
 }
 
 $main_content = include_template(
-    'form-register.php',
+    'auth.php',
     [
         'user' => $user,
         'errors' => $errors
