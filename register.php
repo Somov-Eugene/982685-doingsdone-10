@@ -1,6 +1,8 @@
 <?php
 require_once 'init.php';
 
+session_start();
+
 $page_title = "Дела в порядке - Регистрация аккаунта";
 
 // параметры пользователя со значениями по умолчанию
@@ -54,6 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user_id = register_user($link, $user);
 
         if (!empty($user_id)) {
+            $user['id'] = $user_id;
+
+            // сохраняем данные пользователя в сессиии
+            $_SESSION['user'] = $user;
+
+            // и переадресовываем его на главную страницу
             header("Location: index.php");
         }
     }
