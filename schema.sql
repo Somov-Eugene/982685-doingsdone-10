@@ -49,7 +49,7 @@ CREATE TABLE tasks (
   `project_id`    INT NOT NULL
 );
 
-CREATE INDEX idx_tasks_name ON tasks (`name`);
+CREATE FULLTEXT INDEX idx_tasks_name ON tasks (`name`);
 CREATE INDEX idx_tasks_dt_completion ON tasks (`dt_completion`);
 
 /*
