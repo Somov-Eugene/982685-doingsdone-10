@@ -2,7 +2,12 @@
 require_once 'init.php';
 require_once 'get_user.php';
 
-$page_title = "Дела в порядке";
+$page_title = 'Дела в порядке';
+
+$search = [
+    'text' => '',
+    'is_search' => false
+];
 
 if (empty($user['id'])) {
     $main_content = include_template('guest.php');
@@ -29,12 +34,20 @@ if (empty($user['id'])) {
         $tasks = get_user_tasks_all($link, $user['id']);
     }
 
+    if (isset($_GET['search'])) {
+        $search['text'] = strip_tags($_GET['search']);
+        $search['is_search'] = true;
+
+        $tasks = get_user_tasks_ft_search($link, $user['id'], $search['text']);
+    }
+
     $main_content = include_template(
         'main.php',
         [
             'tasks' => $tasks,
             'projects' => $projects,
-            'is_show_complete_tasks' => boolval($show_complete_tasks)
+            'is_show_complete_tasks' => boolval($show_complete_tasks),
+            'search' => $search
         ]
     );
 }

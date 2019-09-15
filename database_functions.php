@@ -306,3 +306,32 @@ function register_user(mysqli $link, array $new_user)
 
     return $result;
 }
+
+
+/**
+ *  Возвращает список задач пользователя по указанному поисковому запросу
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
+ * @param string $search Поисковый запрос (FULLTEXT)
+ *
+ * @return array Список найденных задач пользователя или пустой массив, если ничего не было найдено
+ */
+function get_user_tasks_ft_search(mysqli $link, int $user_id, string $search)
+{
+    $sql = "
+        SELECT
+          t.`is_completed`,
+          t.`name`,
+          t.`dt_completion` AS date_completion,
+          t.`file`,
+          p.`name` AS project_name
+        FROM tasks t
+        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
+        WHERE t.`user_id` = ?
+        AND MATCH(t.`name`) AGAINST(?)
+        ORDER BY t.`dt_add` DESC
+    ";
+
+    return db_fetch_data($link, $sql, [$user_id, $user_id, $search]);
+}
