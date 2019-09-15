@@ -63,4 +63,8 @@
             <?php endif; ?>
         <?php endforeach; ?>
     </table>
+
+    <?php if ($search['is_search'] && empty($task)): ?>
+    <p>Ничего не найдено по вашему запросу</p>
+    <?php endif; ?>
 </main>
