@@ -261,6 +261,37 @@ function add_user_task(mysqli $link, array $new_task)
 
 
 /**
+ * Добавляет проект для указанного пользователя
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param array $new_project Массив с параметрами проекта
+ *
+ * @return mixed ID добавленной записи или null, если произошла ошибка
+ */
+function add_user_project(mysqli $link, array $new_project)
+{
+    $result = null;
+
+    $data = [
+        $new_project['name'],
+        $new_project['user_id']
+    ];
+
+    $sql = "
+        INSERT INTO projects (`name`, `user_id`)
+        VALUES (?, ?)
+    ";
+    $insert_id = db_insert_data($link, $sql, $data);
+
+    if ($insert_id) {
+        $result = $insert_id;
+    }
+
+    return $result;
+}
+
+
+/**
  * Определяет, имется ли переданный e-mail в БД пользователей
  *
  * @param mysqli $link Ресурс соединения
