@@ -87,7 +87,7 @@ function db_fetch_data($link, $sql, $data = [])
  * @param string $sql SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
  *
- * @return mixed ID добавленной записи
+ * @return mixed ID добавленной записи или null, если произошла ошибка
  */
 function db_insert_data($link, $sql, $data = [])
 {
@@ -232,7 +232,7 @@ function is_exist_project(mysqli $link, int $user_id, int $project_id)
  * @param mysqli $link Ресурс соединения
  * @param array $new_task Массив с параметрами задачи
  *
- * @return mixed ID добавленной записи
+ * @return mixed ID добавленной записи или null, если произошла ошибка
  */
 function add_user_task(mysqli $link, array $new_task)
 {
@@ -313,7 +313,7 @@ function is_exist_user(mysqli $link, string $email)
  * @param mysqli $link Ресурс соединения
  * @param array $new_user Массив с параметрами пользователя
  *
- * @return mixed ID добавленной записи
+ * @return mixed ID добавленной записи или null, если произошла ошибка
  */
 function register_user(mysqli $link, array $new_user)
 {
