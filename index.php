@@ -13,7 +13,7 @@ if (empty($user['id'])) {
     $main_content = include_template('guest.php');
 } else {
     // показывать или нет выполненные задачи
-    $show_complete_tasks = rand(0, 1);
+    $show_complete_tasks = show_completed();
 
     // получение списка проектов пользователя
     $projects = get_user_projects($link, $user['id']);
