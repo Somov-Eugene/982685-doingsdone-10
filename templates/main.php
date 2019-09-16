@@ -47,7 +47,7 @@
         <tr class="tasks__item task <?= additional_task_classes($task, $is_show_complete_tasks) ?>">
             <td class="task__select">
                 <label class="checkbox task__checkbox">
-                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1" <?= ($is_task_completed) ? "checked" : "" ?>>
+                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" <?= ($is_task_completed) ? "checked" : "" ?>>
                     <span class="checkbox__text"><?= strip_tags($task['name']) ?></span>
                 </label>
             </td>
