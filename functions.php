@@ -86,7 +86,6 @@ function get_link_to_project(int $project_id)
  *
  * @return string Название класса
  */
-
 function mark_active_project(int $project_id)
 {
     if (isset($_GET['project_id']) and ((int)$_GET['project_id'] === $project_id)) {
@@ -94,4 +93,25 @@ function mark_active_project(int $project_id)
     }
 
     return '';
+}
+
+
+/**
+ * Определяет, показывать или нет выполненные задачи в зависимости от переданного GET-запроса
+ *
+ * @return int Значение 1 - показывать, 0 - не показывать
+ */
+function show_completed()
+{
+    $result = 0;
+
+    if (isset($_GET['show_completed']) && is_numeric($_GET['show_completed'])) {
+        $result = $_GET['show_completed'];
+    }
+
+    if (!in_array($result, [0, 1])) {
+        $result = 0;
+    }
+
+    return $result;
 }
