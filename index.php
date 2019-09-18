@@ -19,6 +19,15 @@ if (empty($user['id'])) {
     $projects = get_user_projects($link, $user['id']);
 
     $tasks = [];
+
+    // Если пользователь включил/выключил чекбокс на задаче
+    if (isset($_GET['task_id']) && is_numeric($_GET['task_id'])) {
+        $task_id = (integer)$_GET['task_id'];
+        toggle_state_task($link, $task_id);
+
+        header("Location: index.php");
+    }
+
     // Если параметр присутствует, то показывать только те задачи,
     // что относятся к этому проекту
     if (isset($_GET['project_id'])) {
