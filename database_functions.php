@@ -56,7 +56,7 @@ function db_get_prepare_stmt($link, $sql, $data = [])
 
 
 /**
- * Возвращает результат выполнения SELECT-запроса
+ * Возвращает результат выполнения запроса
  *
  * @param mysqli $link Ресурс соединения
  * @param string $sql SQL запрос с плейсхолдерами вместо значений
@@ -159,6 +159,7 @@ function get_user_tasks_all($link, $user_id)
 {
     $sql = "
         SELECT
+          t.`id`,
           t.`is_completed`,
           t.`name`,
           t.`dt_completion` AS date_completion,
@@ -187,6 +188,7 @@ function get_user_tasks_project($link, $user_id, $project_id)
 {
     $sql = "
         SELECT
+          t.`id`,
           t.`is_completed`,
           t.`name`,
           t.`dt_completion` AS date_completion,
@@ -340,7 +342,7 @@ function register_user(mysqli $link, array $new_user)
 
 
 /**
- *  Возвращает список задач пользователя по указанному поисковому запросу
+ * Возвращает список задач пользователя по указанному поисковому запросу
  *
  * @param mysqli $link Ресурс соединения
  * @param int $user_id ID пользователя
@@ -365,4 +367,25 @@ function get_user_tasks_ft_search(mysqli $link, int $user_id, string $search)
     ";
 
     return db_fetch_data($link, $sql, [$user_id, $user_id, $search]);
+}
+
+
+/**
+ * Изменяет состояние задачи (выполнена/не выполнена) на противоположное
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param int $task_id ID задачи
+ *
+ * @return void Отсутствует
+ */
+function toggle_state_task(mysqli $link, int $task_id)
+{
+
+    $sql = "
+        UPDATE tasks t
+        SET t.`is_completed` = (NOT t.`is_completed`)
+        WHERE t.`id` = ?
+        ";
+
+    db_fetch_data($link, $sql, [$task_id]);
 }
