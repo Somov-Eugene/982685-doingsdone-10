@@ -58,6 +58,7 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks)
     }
 
     $hours_left = hours_left_deadline($task['date_completion']);
+
     if (!is_null($hours_left) and $hours_left <= 24) {
         return 'task--important';
     }
@@ -81,18 +82,41 @@ function get_link_to_project(int $project_id)
 
 /**
  * Добавляет дополнительный класс для выделения в меню активного проекта
+ * если в GET-запросе присутствует project_id со значением равным переданному
  *
- * @param int $project_id ID проекта
+ * @param int $project_id Проверяемый ID проекта
  *
  * @return string Название класса
  */
 function mark_active_project(int $project_id)
 {
-    if (isset($_GET['project_id']) and ((int)$_GET['project_id'] === $project_id)) {
-        return 'main-navigation__list-item--active';
-    }
+    return (isset($_GET['project_id']) and ((int)$_GET['project_id'] === $project_id)) ? 'main-navigation__list-item--active' : '';
+}
 
-    return '';
+
+/**
+ * Добавляет дополнительный класс для выделения активного фильтра задач,
+ * если в GET-запросе присутствует filter со значением равным переданному
+ *
+ * @param string $filter_name Проверяемое значение фильтра
+ *
+ * @return string Название класса
+ */
+function mark_active_exist_filter_tasks(string $filter_name)
+{
+    return (isset($_GET['filter']) && $_GET['filter'] === $filter_name) ? 'tasks-switch__item--active' : '';
+}
+
+
+/**
+ * Добавляет дополнительный класс для выделения активного фильтра задач,
+ * если в GET-запросе отсутствует filter
+ *
+ * @return string Название класса
+ */
+function mark_active_no_filter_tasks()
+{
+    return (!isset($_GET['filter'])) ? 'tasks-switch__item--active' : '';
 }
 
 
@@ -107,10 +131,10 @@ function show_completed()
 
     if (isset($_GET['show_completed']) && is_numeric($_GET['show_completed'])) {
         $result = $_GET['show_completed'];
-    }
 
-    if (!in_array($result, [0, 1])) {
-        $result = 0;
+        if (!in_array($result, [0, 1])) {
+            $result = 0;
+        }
     }
 
     return $result;
