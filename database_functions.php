@@ -123,7 +123,8 @@ function get_user_by_email($link, $email)
 
 
 /**
- * Возвращает список проектов переданного пользователя и количество задач в каждом из проектов
+ * Возвращает список проектов переданного пользователя
+ * и количество задач в каждом из проектов
  *
  * @param mysqli $link Ресурс соединения
  * @param int $user_id ID пользователя
@@ -141,39 +142,10 @@ function get_user_projects($link, $user_id)
         LEFT JOIN tasks t ON t.`project_id` = p.`id`
         WHERE p.`user_id` = ?
         GROUP BY p.`id`
-        ";
+    ";
 
     return db_fetch_data($link, $sql, [$user_id]);
 }
-
-
-/**
- * Возвращает список всех задач переданного пользователя
- *
- * @param mysqli $link Ресурс соединения
- * @param int $user_id ID пользователя
- *
- * @return array Список задач пользователя (ассоциативный массив)
- */
-function get_user_tasks_all($link, $user_id)
-{
-    $sql = "
-        SELECT
-          t.`id`,
-          t.`is_completed`,
-          t.`name`,
-          t.`dt_completion` AS date_completion,
-          t.`file`,
-          p.`name` AS project_name
-        FROM tasks t
-        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
-        WHERE t.`user_id` = ?
-        ORDER BY t.`dt_add` DESC
-    ";
-
-    return db_fetch_data($link, $sql, [$user_id, $user_id]);
-}
-
 
 /**
  * Возвращает список задач пользователя по указанному проекту
@@ -206,7 +178,123 @@ function get_user_tasks_project($link, $user_id, $project_id)
 
 
 /**
- * Определяет имется ли переданный ID проекта у данного пользователя
+ * Возвращает список всех задач переданного пользователя
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
+ *
+ * @return array Список задач пользователя (ассоциативный массив)
+ */
+function get_user_tasks_all($link, $user_id)
+{
+    $sql = "
+        SELECT
+          t.`id`,
+          t.`is_completed`,
+          t.`name`,
+          t.`dt_completion` AS date_completion,
+          t.`file`,
+          p.`name` AS project_name
+        FROM tasks t
+        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
+        WHERE t.`user_id` = ?
+        ORDER BY t.`dt_add` DESC
+    ";
+
+    return db_fetch_data($link, $sql, [$user_id, $user_id]);
+}
+
+
+/**
+ * Возвращает список задач переданного пользователя на сегодня
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
+ *
+ * @return array Список задач пользователя (ассоциативный массив)
+ */
+function get_user_tasks_today(mysqli $link, int $user_id)
+{
+    $sql = "
+        SELECT
+          t.`id`,
+          t.`is_completed`,
+          t.`name`,
+          t.`dt_completion` AS date_completion,
+          t.`file`,
+          p.`name` AS project_name
+        FROM tasks t
+        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
+        WHERE t.`user_id` = ?
+        AND t.`dt_completion` = CURDATE()
+        ORDER BY t.`dt_add` DESC
+    ";
+
+    return db_fetch_data($link, $sql, [$user_id, $user_id]);
+}
+
+
+/**
+ * Возвращает список задач переданного пользователя на завтра
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
+ *
+ * @return array Список задач пользователя (ассоциативный массив)
+ */
+function get_user_tasks_tomorrow(mysqli $link, int $user_id)
+{
+    $sql = "
+        SELECT
+          t.`id`,
+          t.`is_completed`,
+          t.`name`,
+          t.`dt_completion` AS date_completion,
+          t.`file`,
+          p.`name` AS project_name
+        FROM tasks t
+        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
+        WHERE t.`user_id` = ?
+        AND t.`dt_completion` = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        ORDER BY t.`dt_add` DESC
+    ";
+
+    return db_fetch_data($link, $sql, [$user_id, $user_id]);
+}
+
+
+/**
+ * Возвращает список задач переданного пользователя,
+ * которые не были выполнены и у которых истёк срок выполнения
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
+ *
+ * @return array Список задач пользователя (ассоциативный массив)
+ */
+function get_user_tasks_expired(mysqli $link, int $user_id)
+{
+    $sql = "
+        SELECT
+          t.`id`,
+          t.`is_completed`,
+          t.`name`,
+          t.`dt_completion` AS date_completion,
+          t.`file`,
+          p.`name` AS project_name
+        FROM tasks t
+        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
+        WHERE t.`user_id` = ?
+        AND t.`dt_completion` < CURDATE()
+        ORDER BY t.`dt_add` DESC
+    ";
+
+    return db_fetch_data($link, $sql, [$user_id, $user_id]);
+}
+
+
+/**
+ * Определяет, имеется ли у данного пользователя проект c указанным ID
  *
  * @param mysqli $link Ресурс соединения
  * @param int $user_id ID пользователя
@@ -385,7 +473,7 @@ function toggle_state_task(mysqli $link, int $task_id)
         UPDATE tasks t
         SET t.`is_completed` = (NOT t.`is_completed`)
         WHERE t.`id` = ?
-        ";
+    ";
 
     db_fetch_data($link, $sql, [$task_id]);
 }
