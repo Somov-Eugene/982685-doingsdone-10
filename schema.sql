@@ -18,11 +18,11 @@ USE `982685-doingsdone-10`;
 */
 CREATE TABLE projects (
   `id`       	    INT AUTO_INCREMENT PRIMARY KEY,
-  `name`     	    VARCHAR(255) NOT NULL UNIQUE,
+  `name`     	    VARCHAR(255) NOT NULL,
   `user_id`  	    INT NOT NULL
 );
 
-CREATE UNIQUE INDEX idx_projects_name ON projects (`name`);
+CREATE INDEX idx_projects_name ON projects (`name`);
 
 /*
 // = Задача =

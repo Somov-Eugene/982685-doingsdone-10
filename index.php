@@ -13,15 +13,40 @@ if (empty($user['id'])) {
     $main_content = include_template('guest.php');
 } else {
     // показывать или нет выполненные задачи
-    $show_complete_tasks = rand(0, 1);
+    $show_complete_tasks = show_completed();
 
     // получение списка проектов пользователя
     $projects = get_user_projects($link, $user['id']);
 
     $tasks = [];
-    // Если параметр присутствует, то показывать только те задачи,
-    // что относятся к этому проекту
-    if (isset($_GET['project_id'])) {
+
+    // Если пользователь включил/выключил чекбокс на задаче
+    if (isset($_GET['task_id']) && is_numeric($_GET['task_id'])) {
+        $task_id = (integer)$_GET['task_id'];
+        toggle_state_task($link, $task_id);
+
+        header("Location: index.php");
+    }
+
+    // Если в GET-запросе присутствует параметр search,
+    // то в списке задач с помощью полнотекстового поиска ищутся задачи,
+    // соответствующие поисковому запросу.
+    // Если в GET-запросе имеется параметр project_id,
+    // то показываются только те задачи, которые относятся к данному проекту.
+    // Если присутствует параметр filter, то показывать только те задачи,
+    // которые соответствуют указанному фильтру.
+    // Иначе - показывать все задачи
+    if (isset($_GET['search'])) {
+        $search['text'] = strip_tags(trim($_GET['search']));
+
+        // если поисковый запрос не пустой и не менее трёх символов, то осуществляем поиск
+        if (!empty($search['text']) && strlen($search['text']) > 2){
+            $search['is_search'] = true;
+
+            $tasks = get_user_tasks_ft_search($link, $user['id'], $search['text']);
+        }
+    }
+    else if (isset($_GET['project_id'])) {
         $project_id = (integer)$_GET['project_id'];
 
         if (!is_exist_project($link, $user['id'], $project_id)) {
@@ -30,15 +55,24 @@ if (empty($user['id'])) {
         }
 
         $tasks = get_user_tasks_project($link, $user['id'], $project_id);
-    } else {
-        $tasks = get_user_tasks_all($link, $user['id']);
     }
+    else if (isset($_GET['filter'])) {
+        $filter = $_GET['filter'];
 
-    if (isset($_GET['search'])) {
-        $search['text'] = strip_tags($_GET['search']);
-        $search['is_search'] = true;
-
-        $tasks = get_user_tasks_ft_search($link, $user['id'], $search['text']);
+        switch ($filter) {
+            case 'today':
+                $tasks = get_user_tasks_today($link, $user['id']);
+                break;
+            case "tomorrow":
+                $tasks = get_user_tasks_tomorrow($link, $user['id']);
+                break;
+            case "expired":
+                $tasks = get_user_tasks_expired($link, $user['id']);
+                break;
+        }
+    }
+    else {
+        $tasks = get_user_tasks_all($link, $user['id']);
     }
 
     $main_content = include_template(

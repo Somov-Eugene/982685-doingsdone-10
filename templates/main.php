@@ -14,7 +14,7 @@
         </ul>
     </nav>
 
-    <a class="button button--transparent button--plus content__side-button" href="pages/form-project.html" target="project_add">Добавить проект</a>
+    <a class="button button--transparent button--plus content__side-button" href="add_project.php" target="project_add">Добавить проект</a>
 </section>
 
 <main class="content__main">
@@ -28,10 +28,10 @@
 
     <div class="tasks-controls">
         <nav class="tasks-switch">
-            <a href="/" class="tasks-switch__item tasks-switch__item--active">Все задачи</a>
-            <a href="/" class="tasks-switch__item">Повестка дня</a>
-            <a href="/" class="tasks-switch__item">Завтра</a>
-            <a href="/" class="tasks-switch__item">Просроченные</a>
+            <a href="/index.php" class="tasks-switch__item <?= mark_active_no_filter_tasks(); ?>">Все задачи</a>
+            <a href="/index.php?filter=today" class="tasks-switch__item <?= mark_active_exist_filter_tasks('today'); ?>">Повестка дня</a>
+            <a href="/index.php?filter=tomorrow" class="tasks-switch__item <?= mark_active_exist_filter_tasks('tomorrow'); ?>">Завтра</a>
+            <a href="/index.php?filter=expired" class="tasks-switch__item <?= mark_active_exist_filter_tasks('expired'); ?>">Просроченные</a>
         </nav>
 
         <label class="checkbox">
@@ -47,7 +47,7 @@
         <tr class="tasks__item task <?= additional_task_classes($task, $is_show_complete_tasks) ?>">
             <td class="task__select">
                 <label class="checkbox task__checkbox">
-                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="1" <?= ($is_task_completed) ? "checked" : "" ?>>
+                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="<?= $task['id'] ?>" <?= ($is_task_completed) ? "checked" : "" ?>>
                     <span class="checkbox__text"><?= strip_tags($task['name']) ?></span>
                 </label>
             </td>
