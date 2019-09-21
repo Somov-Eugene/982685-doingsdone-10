@@ -1,0 +1,15 @@
+{
+    "name": "student/doingsdone",
+    "description": "Personal project on HTMLAcademy PHP level 1 (stream 10)",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Somov Eugene",
+            "email": "somov.eugene.2012@gmail.com"
+        }
+    ],
+    "require": {
+        "swiftmailer/swiftmailer": "^6.2"
+    }
+}
