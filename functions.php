@@ -139,3 +139,35 @@ function show_completed()
 
     return $result;
 }
+
+
+/**
+ * Отправляет письмо, используя библиотеку SwiftMailer
+ *
+ * @param string $email e-mail пользователя
+ * @param string $username Имя пользователя
+ * @param string $msg Текст сообщения
+ *
+ * @return void отсутствует
+ */
+function mail_sender(string $email, string $username, string $msg)
+{
+    // Create the Transport
+    $transport = (new Swift_SmtpTransport('phpdemo.ru', 25))
+        ->setUsername('keks@phpdemo.ru')
+        ->setPassword('htmlacademy')
+    ;
+
+    // Create the Mailer using your created Transport
+    $mailer = new Swift_Mailer($transport);
+
+    // Create a message
+    $message = (new Swift_Message('Уведомление от сервиса «Дела в порядке»'))
+        ->setFrom(['keks@phpdemo.ru' => 'DoingsDone'])
+        ->setTo([$email => $username])
+        ->setBody($msg, 'text/html')
+    ;
+
+    // Send the message
+    $mailer->send($message);
+}
