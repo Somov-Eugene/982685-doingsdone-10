@@ -34,10 +34,11 @@ function hours_left_deadline($date_completion)
         return null;
     }
 
-    $ts_end = strtotime($date_completion);
-    $ts_now = strtotime('now');
-    $ts_diff = $ts_end - $ts_now;
-    $hours_left = floor($ts_diff / 3600);
+    $date_current = date_create('now');
+    $date_finish = date_create($date_completion);
+    $diff = date_diff($date_current, $date_finish);
+
+    $hours_left = (integer)date_interval_format($diff, '%h');
 
     return $hours_left;
 }
