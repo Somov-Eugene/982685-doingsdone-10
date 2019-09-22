@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/flatpickr.min.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body <?= empty($user['id']) ? ' class="body-background"': ''; ?>>

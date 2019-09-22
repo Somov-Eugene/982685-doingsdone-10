@@ -8,6 +8,7 @@
     <link rel="preload" href="../fonts/opensans-bold-webfont.woff2" as="font" crossorigin="anonymous">
     <link rel="stylesheet" href="../css/normalize.css">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body>
