@@ -34,13 +34,24 @@ function hours_left_deadline($date_completion)
         return null;
     }
 
-    $date_current = date_create('now');
-    $date_finish = date_create($date_completion);
-    $diff = date_diff($date_current, $date_finish);
-
-    $hours_left = (integer)date_interval_format($diff, '%h');
+    $task_finish = strtotime($date_completion);
+    $seconds_left = $task_finish - time();
+    $hours_left = floor($seconds_left/3600);
 
     return $hours_left;
+}
+
+
+/**
+ * Возвращает дату в европейском формате (dd.mm.yyyy)
+ *
+ * @param string $dt Преобразуемая дата
+ *
+ * @return string Отформатированная дата
+ */
+function euro_date($dt)
+{
+    return (empty($dt)) ? '' : date("d.m.Y", strtotime($dt));
 }
 
 
