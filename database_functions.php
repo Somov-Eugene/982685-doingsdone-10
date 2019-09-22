@@ -103,19 +103,19 @@ function db_insert_data($link, $sql, $data = [])
 
 
 /**
- * Возвращает учетные данные текущего пользователя
+ * Возвращает учетные данные пользователя c указанным e-mail
  *
  * @param mysqli $link Ресурс соединения
  * @param string $user_name e-mail пользователя
  *
- * @return array Данные пользователя (ассоциативный массив)
+ * @return array Данные пользователя или пустой массив, если такой пользователь не найден
  */
 function get_user_by_email($link, $email)
 {
     $sql = "
         SELECT *
         FROM users u
-        WHERE u.`email` = ?
+        WHERE u.`email` = ? LIMIT 1
     ";
 
     return db_fetch_data($link, $sql, [$email]);
@@ -163,7 +163,7 @@ function get_user_tasks_project($link, $user_id, $project_id)
           t.`id`,
           t.`is_completed`,
           t.`name`,
-          date_format(t.`dt_completion`, '%d.%m.%Y') AS date_completion,
+          t.`dt_completion` AS date_completion,
           t.`file`,
           p.`name` AS project_name
         FROM tasks t
@@ -192,7 +192,7 @@ function get_user_tasks_all($link, $user_id)
           t.`id`,
           t.`is_completed`,
           t.`name`,
-          date_format(t.`dt_completion`, '%d.%m.%Y') AS date_completion,
+          t.`dt_completion` AS date_completion,
           t.`file`,
           p.`name` AS project_name
         FROM tasks t
@@ -220,7 +220,7 @@ function get_user_tasks_today(mysqli $link, int $user_id)
           t.`id`,
           t.`is_completed`,
           t.`name`,
-          date_format(t.`dt_completion`, '%d.%m.%Y') AS date_completion,
+          t.`dt_completion` AS date_completion,
           t.`file`,
           p.`name` AS project_name
         FROM tasks t
@@ -249,7 +249,7 @@ function get_user_tasks_tomorrow(mysqli $link, int $user_id)
           t.`id`,
           t.`is_completed`,
           t.`name`,
-          date_format(t.`dt_completion`, '%d.%m.%Y') AS date_completion,
+          t.`dt_completion` AS date_completion,
           t.`file`,
           p.`name` AS project_name
         FROM tasks t
@@ -279,7 +279,7 @@ function get_user_tasks_expired(mysqli $link, int $user_id)
           t.`id`,
           t.`is_completed`,
           t.`name`,
-          date_format(t.`dt_completion`, '%d.%m.%Y') AS date_completion,
+          t.`dt_completion` AS date_completion,
           t.`file`,
           p.`name` AS project_name
         FROM tasks t
@@ -444,7 +444,7 @@ function get_user_tasks_ft_search(mysqli $link, int $user_id, string $search)
         SELECT
           t.`is_completed`,
           t.`name`,
-          date_format(t.`dt_completion`, '%d.%m.%Y') AS date_completion,
+          t.`dt_completion` AS date_completion,
           t.`file`,
           p.`name` AS project_name
         FROM tasks t
@@ -494,7 +494,7 @@ function get_users_tasks_expired_today(mysqli $link)
           u.`id`,
           u.`email`,
           u.`name`,
-          date_format(t.`dt_completion`, '%d.%m.%Y') AS date_completion
+          t.`dt_completion` AS date_completion
         FROM users u
         JOIN tasks t ON t.`user_id` = u.`id`
         WHERE t.`is_completed` = 0
