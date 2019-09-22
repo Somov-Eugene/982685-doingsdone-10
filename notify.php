@@ -5,7 +5,7 @@ $send_users = get_users_tasks_expired_today($link);
 
 foreach ($send_users as $key => $recipient) {
     $msg_html = '<p><strong>Уважаемый(-ая) ' . $recipient['name'] . '!</strong></p>';
-    $msg_html .= '<p>На ' . $recipient['date_completion'] . ' у Вас ';
+    $msg_html .= '<p>На ' . euro_date($recipient['date_completion']) . ' у Вас ';
 
     $tasks = get_user_tasks_today($link, $recipient['id']);
     $tasks_name = array_column($tasks, 'name');

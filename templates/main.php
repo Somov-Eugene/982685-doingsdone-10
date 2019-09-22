@@ -58,7 +58,7 @@
             <?php endif; ?>
             </td>
 
-            <td class="task__date"><?= strip_tags($task['date_completion']) ?></td>
+            <td class="task__date"><?= euro_date(strip_tags($task['date_completion'])); ?></td>
         </tr>
             <?php endif; ?>
         <?php endforeach; ?>
