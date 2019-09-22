@@ -2,14 +2,18 @@
   font-weight: 400;
   font-family: "OpenSans";
   font-style: normal;
-  src: url("../fonts/opensans-regular-webfont.woff2") format("woff2"), url("../fonts/opensans-regular-webfont.woff") format("woff");
+  font-display: swap;
+  src: local("Open Sans Regular"), local("OpenSans-Regular"),
+    url("../fonts/opensans-regular-webfont.woff2") format("woff2"), url("../fonts/opensans-regular-webfont.woff") format("woff");
 }
 
 @font-face {
   font-weight: 700;
   font-family: "OpenSans";
   font-style: normal;
-  src: url("../fonts/opensans-bold-webfont.woff2") format("woff2"), url("../fonts/opensans-bold-webfont.woff") format("woff");
+  font-display: swap;
+  src: local("Open Sans Bold"), local("OpenSans-Bold"),
+    url("../fonts/opensans-bold-webfont.woff2") format("woff2"), url("../fonts/opensans-bold-webfont.woff") format("woff");
 }
 
 .visually-hidden:not(:focus):not(:active),
