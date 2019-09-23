@@ -28,10 +28,22 @@
 
     <div class="tasks-controls">
         <nav class="tasks-switch">
-            <a href="/index.php" class="tasks-switch__item <?= mark_active_no_filter_tasks(); ?>">Все задачи</a>
-            <a href="/index.php?filter=today" class="tasks-switch__item <?= mark_active_exist_filter_tasks('today'); ?>">Повестка дня</a>
-            <a href="/index.php?filter=tomorrow" class="tasks-switch__item <?= mark_active_exist_filter_tasks('tomorrow'); ?>">Завтра</a>
-            <a href="/index.php?filter=expired" class="tasks-switch__item <?= mark_active_exist_filter_tasks('expired'); ?>">Просроченные</a>
+            <a href="/index.php<?= get_all_tasks_query_filter(); ?>"
+                class="tasks-switch__item <?= mark_active_no_filter_tasks(); ?>"
+            >Все задачи
+            </a>
+            <a href="/index.php<?= get_tasks_filter_query_for_today(); ?>"
+                class="tasks-switch__item <?= mark_active_exist_filter_tasks(TASKS_FILTER_TODAY); ?>"
+            >Повестка дня
+            </a>
+            <a href="/index.php<?= get_tasks_filter_query_for_tomorrow(); ?>"
+                class="tasks-switch__item <?= mark_active_exist_filter_tasks(TASKS_FILTER_TOMORROW); ?>"
+            >Завтра
+            </a>
+            <a href="/index.php<?= get_tasks_filter_query_for_expired(); ?>"
+                class="tasks-switch__item <?= mark_active_exist_filter_tasks(TASKS_FILTER_EXPIRED); ?>"
+            >Просроченные
+            </a>
         </nav>
 
         <label class="checkbox">
