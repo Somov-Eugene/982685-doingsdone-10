@@ -5,7 +5,7 @@
         <ul class="main-navigation__list">
             <?php foreach ($projects as $project): ?>
             <li class="main-navigation__list-item">
-                <a class="main-navigation__list-item-link <?= mark_active_project($project['id']) ?>" href="<?= get_link_to_project($project['id']) ?>">
+                <a class="main-navigation__list-item-link <?= mark_active_project($project['id']) ?>" href="/index.php<?= set_project_query($project['id']); ?>">
                     <?= strip_tags($project['name']) ?>
                 </a>
                 <span class="main-navigation__list-item-count"><?= $project['cnt_tasks']; ?></span>

@@ -84,15 +84,18 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks)
 
 
 /**
- * Формирует ссылку на проект с указанным ID
+ * Устанавливает в запросе параметр project_id с указанным ID проекта
  *
  * @param int $project_id ID проекта
  *
- * @return string Абсолютный путь к текущей странице с GET-запросом
+ * @return string Строка запроса
  */
-function get_link_to_project(int $project_id)
+function set_project_query(int $project_id): string
 {
-    return '/index.php?project_id=' . $project_id;
+    $param_name = 'project_id';
+    $param_value = (string)$project_id;
+
+    return modify_query($param_name, $param_value);
 }
 
 
