@@ -2,8 +2,8 @@
 require_once 'init.php';
 require_once 'get_user.php';
 
-if ($is_anonymous) {
-    header("Location: index.php");
+if (empty($user)) {
+    header('Location: guest.php');
 }
 
 $page_title = "Дела в порядке - Добавление проекта";
