@@ -156,10 +156,11 @@ function get_user_projects($link, $user_id)
  * @param int $user_id ID пользователя
  * @param int $project_id ID проекта
  * @param string $filter Название фильтра задач
+ * @param string $search Поисковый запрос
  *
  * @return array Список задач пользователя (ассоциативный массив)
  */
-function get_user_tasks($link, $user_id, ?int $project_id = null, ?string $filter = null)
+function get_user_tasks(mysqli $link, int $user_id, ?int $project_id = null, ?string $filter = null, ?string $search = null)
 {
     $params = [$user_id, $user_id];
     $where = 't.`user_id` = ?';
@@ -183,6 +184,11 @@ function get_user_tasks($link, $user_id, ?int $project_id = null, ?string $filte
         }
     }
 
+    if (!is_null($search)) {
+        $params[] = $search;
+        $where .= ' AND MATCH(t.`name`) AGAINST (?)';
+    }
+
     $sql = "
         SELECT
           t.`id`,
@@ -198,37 +204,6 @@ function get_user_tasks($link, $user_id, ?int $project_id = null, ?string $filte
     ";
 
     return db_fetch_data($link, $sql, $params);
-}
-
-
-/**
- * Возвращает список задач указанного пользователя
- * по переданному поисковому запросу
- *
- * @param mysqli $link Ресурс соединения
- * @param int $user_id ID пользователя
- * @param string $search Поисковый запрос (FULLTEXT)
- *
- * @return array Список найденных задач пользователя или пустой массив, если ничего не было найдено
- */
-function get_user_tasks_ft_search(mysqli $link, int $user_id, string $search)
-{
-    $sql = "
-        SELECT
-          t.`id`,
-          t.`is_completed`,
-          t.`name`,
-          t.`dt_completion` AS date_completion,
-          t.`file`,
-          p.`name` AS project_name
-        FROM tasks t
-        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
-        WHERE t.`user_id` = ?
-        AND MATCH(t.`name`) AGAINST(?)
-        ORDER BY t.`dt_add` DESC
-    ";
-
-    return db_fetch_data($link, $sql, [$user_id, $user_id, $search]);
 }
 
 
