@@ -26,7 +26,14 @@ if (isset($_GET['task_id']) && is_numeric($_GET['task_id'])) {
     $task_id = (integer)$_GET['task_id'];
     toggle_state_task($link, $task_id);
 
-    header('Location: index.php');
+    $redirect = 'Location: index.php';
+
+    $get_data = $_GET;
+    // удаляем параметр task_id
+    $query_data = modify_query_data($get_data, 'task_id');
+
+    $redirect .= (strlen($query_data) > 1) ? $query_data : '';
+    header($redirect);
 }
 
 if (isset($_GET['project_id'])) {
@@ -38,10 +45,6 @@ if (isset($_GET['project_id'])) {
     }
 }
 
-$filter = $_GET['filter'] ?? null;
-
-$tasks = get_user_tasks($link, $user['id'], $project_id, $filter);
-
 if (isset($_GET['search'])) {
     $search['text'] = strip_tags(trim($_GET['search']));
 
@@ -49,8 +52,13 @@ if (isset($_GET['search'])) {
     if (!empty($search['text']) && strlen($search['text']) > 2) {
         $search['is_search'] = true;
 
-        $tasks = get_user_tasks_ft_search($link, $user['id'], $search['text']);
+        $tasks = get_user_tasks($link, $user['id'], $project_id, null, $search['text']);
     }
+}
+else {
+    $filter = $_GET['filter'] ?? null;
+
+    $tasks = get_user_tasks($link, $user['id'], $project_id, $filter);
 }
 
 $main_content = include_template(
