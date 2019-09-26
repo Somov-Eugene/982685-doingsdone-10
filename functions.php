@@ -124,6 +124,9 @@ function mark_active_project(int $project_id)
  */
 function modify_query_data(array $query_data, string $param_name, ?string $param_value = null): string
 {
+    // принудительно удаляем параметр search из массива (если он есть)
+    unset($query_data['search']);
+    // удаляем параметр, переданные в $param_name из массива
     unset($query_data[$param_name]);
 
     if (!is_null($param_value)) {
