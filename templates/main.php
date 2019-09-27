@@ -14,7 +14,7 @@
         </ul>
     </nav>
 
-    <a class="button button--transparent button--plus content__side-button" href="add_project.php" target="project_add">Добавить проект</a>
+    <a class="button button--transparent button--plus content__side-button" href="/add_project.php">Добавить проект</a>
 </section>
 
 <main class="content__main">
@@ -66,7 +66,7 @@
 
             <td class="task__file">
             <?php if (!is_null($task['file'])): ?>
-                <a class="download-link" href="<?= '/uploads/' . $task['file']; ?>"><?= strip_tags($task['file']) ?></a>
+                <a class="download-link" href="<?= '/uploads/' . $task['file']; ?>" target="_blank"><?= strip_tags($task['file']) ?></a>
             <?php endif; ?>
             </td>
 
