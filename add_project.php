@@ -70,7 +70,7 @@ $main_content = include_template(
 $layout_content = include_template(
     'layout.php',
     [
-	    'main_content' => $main_content,
+        'main_content' => $main_content,
         'page_title'=> $page_title,
         'user' => $user
     ]

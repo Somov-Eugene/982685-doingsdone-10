@@ -69,8 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             move_uploaded_file($temp_name, $file_path . $file_name);
         }
-    }
-    else if (isset($_FILES['file']['error']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
+    } elseif (isset($_FILES['file']['error']) && $_FILES['file']['error'] !== UPLOAD_ERR_NO_FILE) {
         $errors['file'] = 'Не удалось загрузить файл';
     }
 
@@ -82,7 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($task_id)) {
             header("Location: index.php");
         }
-
     }
 }
 
@@ -100,7 +98,7 @@ $main_content = include_template(
 $layout_content = include_template(
     'layout.php',
     [
-	    'main_content' => $main_content,
+        'main_content' => $main_content,
         'page_title'=> $page_title,
         'user' => $user
     ]

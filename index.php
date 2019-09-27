@@ -54,8 +54,7 @@ if (isset($_GET['search'])) {
 
         $tasks = get_user_tasks($link, $user['id'], $project_id, null, $search['text']);
     }
-}
-else {
+} else {
     $filter = $_GET['filter'] ?? null;
 
     $tasks = get_user_tasks($link, $user['id'], $project_id, $filter);

@@ -3,7 +3,7 @@
 
         <nav class="main-navigation">
             <ul class="main-navigation__list">
-            <?php foreach ($projects as $project): ?>
+            <?php foreach ($projects as $project) : ?>
                 <li class="main-navigation__list-item">
                     <a class="main-navigation__list-item-link <?= mark_active_project($project['id']) ?>" href="/index.php<?= set_project_query($project['id']); ?>">
                         <?= strip_tags($project['name']) ?>
@@ -24,10 +24,11 @@
           <div class="form__row">
             <label class="form__label" for="project_name">Название <sup>*</sup></label>
 
-            <input class="form__input <?= isset($errors['name']) ? 'form__input--error' : '' ?>" type="text" name="name" id="project_name"
-                value="<?= ($new_project['name'] ?? ''); ?>" placeholder="Введите название проекта">
+            <input class="form__input <?= isset($errors['name']) ? 'form__input--error' : '' ?>"
+                type="text" name="name" id="project_name" value="<?= ($new_project['name'] ?? ''); ?>"
+                placeholder="Введите название проекта">
 
-            <?php if (isset($errors['name'])): ?>
+            <?php if (isset($errors['name'])) : ?>
                 <p class="form__message"><?= $errors['name']; ?></p>
             <?php endif; ?>
           </div>

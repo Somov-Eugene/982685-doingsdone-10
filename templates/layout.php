@@ -12,7 +12,7 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
-<body <?= empty($user) ? ' class="body-background"': ''; ?>>
+<body <?= empty($user) ? ' class="body-background"' : ''; ?>>
 <h1 class="visually-hidden">Дела в порядке</h1>
 
 <div class="page-wrapper">
@@ -22,11 +22,11 @@
                 <img src="img/logo.png" width="153" height="42" alt="Логотип Дела в порядке">
             </a>
 
-            <?php if (empty($user)): ?>
+            <?php if (empty($user)) : ?>
                 <div class="main-header__side">
                     <a class="main-header__side-item button button--transparent" href="/auth.php">Войти</a>
                 </div>
-            <?php else: ?>
+            <?php else : ?>
                 <div class="main-header__side">
                     <a class="main-header__side-item button button--plus open-modal" href="/add.php">Добавить задачу</a>
 
@@ -55,7 +55,7 @@
             <p>Веб-приложение для удобного ведения списка дел.</p>
         </div>
 
-        <?php if (!empty($user)): ?>
+        <?php if (!empty($user)) : ?>
             <a class="main-footer__button button button--plus" href="/add.php">Добавить задачу</a>
         <?php endif; ?>
 

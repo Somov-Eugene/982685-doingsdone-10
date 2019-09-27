@@ -11,10 +11,10 @@
         <div class="form__row">
             <label class="form__label" for="email">E-mail <sup>*</sup></label>
 
-            <input class="form__input <?= isset($errors['email']) ? 'form__input--error' : ''; ?>" type="text" name="email" id="email"
-                value="<?= $user['email']; ?>" placeholder="Введите e-mail">
+            <input class="form__input <?= isset($errors['email']) ? 'form__input--error' : ''; ?>" type="text"
+                name="email" id="email" value="<?= $user['email']; ?>" placeholder="Введите e-mail">
 
-            <?php if (isset($errors['email'])): ?>
+            <?php if (isset($errors['email'])) : ?>
                 <p class="form__message"><?= $errors['email']; ?></p>
             <?php endif; ?>
         </div>
@@ -22,16 +22,16 @@
         <div class="form__row">
             <label class="form__label" for="password">Пароль <sup>*</sup></label>
 
-            <input class="form__input <?= isset($errors['password']) ? 'form__input--error' : ''; ?>" type="password" name="password" id="password"
-                value="" placeholder="Введите пароль">
+            <input class="form__input <?= isset($errors['password']) ? 'form__input--error' : ''; ?>" type="password"
+                name="password" id="password" value="" placeholder="Введите пароль">
 
-            <?php if (isset($errors['password'])): ?>
+            <?php if (isset($errors['password'])) : ?>
                 <p class="form__message"><?= $errors['password']; ?></p>
             <?php endif; ?>
         </div>
 
         <div class="form__row form__row--controls">
-            <?php if (!empty($errors)): ?>
+            <?php if (!empty($errors)) : ?>
                 <p class="error-message">Пожалуйста, исправьте ошибки в форме</p>
             <?php endif; ?>
 

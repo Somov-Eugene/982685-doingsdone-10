@@ -3,7 +3,7 @@
 
     <nav class="main-navigation">
         <ul class="main-navigation__list">
-            <?php foreach ($projects as $project): ?>
+            <?php foreach ($projects as $project) : ?>
             <li class="main-navigation__list-item">
                 <a class="main-navigation__list-item-link <?= mark_active_project($project['id']) ?>" href="/index.php<?= set_project_query($project['id']); ?>">
                     <?= strip_tags($project['name']) ?>
@@ -53,21 +53,22 @@
     </div>
 
     <table class="tasks">
-        <?php foreach ($tasks as $task): ?>
+        <?php foreach ($tasks as $task) : ?>
             <?php $is_task_completed = (1 === $task['is_completed']); ?>
-            <?php if (!$is_task_completed or $is_show_complete_tasks): ?>
+            <?php if (!$is_task_completed or $is_show_complete_tasks) : ?>
         <tr class="tasks__item task <?= additional_task_classes($task, $is_show_complete_tasks) ?>">
             <td class="task__select">
                 <label class="checkbox task__checkbox">
-                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox" value="<?= $task['id'] ?>" <?= ($is_task_completed) ? "checked" : "" ?>>
+                    <input class="checkbox__input visually-hidden task__checkbox" type="checkbox"
+                        value="<?= $task['id'] ?>" <?= ($is_task_completed) ? "checked" : "" ?>>
                     <span class="checkbox__text"><?= strip_tags($task['name']) ?></span>
                 </label>
             </td>
 
             <td class="task__file">
-            <?php if (!is_null($task['file'])): ?>
+                <?php if (!is_null($task['file'])) : ?>
                 <a class="download-link" href="<?= '/uploads/' . $task['file']; ?>" target="_blank"><?= strip_tags($task['file']) ?></a>
-            <?php endif; ?>
+                <?php endif; ?>
             </td>
 
             <td class="task__date"><?= euro_date(strip_tags($task['date_completion'])); ?></td>
@@ -76,7 +77,7 @@
         <?php endforeach; ?>
     </table>
 
-    <?php if ($search['is_search'] && empty($task)): ?>
+    <?php if ($search['is_search'] && empty($task)) : ?>
     <p>Ничего не найдено по вашему запросу</p>
     <?php endif; ?>
 </main>
