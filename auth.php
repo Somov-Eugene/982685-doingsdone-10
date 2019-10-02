@@ -1,7 +1,11 @@
 <?php
 require_once 'init.php';
+require_once 'get_user.php';
 
-session_start();
+// если пользователь уже был авторизован
+if (!empty($user)) {
+    header('Location: index.php');
+}
 
 $page_title = "Дела в порядке - Вход на сайт";
 
