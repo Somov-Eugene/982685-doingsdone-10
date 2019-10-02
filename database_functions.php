@@ -103,19 +103,19 @@ function db_insert_data($link, $sql, $data = [])
 
 
 /**
- * Возвращает учетные данные текущего пользователя
+ * Возвращает учетные данные пользователя c указанным e-mail
  *
  * @param mysqli $link Ресурс соединения
  * @param string $user_name e-mail пользователя
  *
- * @return array Данные пользователя (ассоциативный массив)
+ * @return array Данные пользователя или пустой массив, если такой пользователь не найден
  */
 function get_user_by_email($link, $email)
 {
     $sql = "
         SELECT *
         FROM users u
-        WHERE u.`email` = ?
+        WHERE u.`email` = ? LIMIT 1
     ";
 
     return db_fetch_data($link, $sql, [$email]);
@@ -123,7 +123,7 @@ function get_user_by_email($link, $email)
 
 
 /**
- * Возвращает список проектов переданного пользователя
+ * Возвращает список проектов указанного пользователя
  * и количество задач в каждом из проектов
  *
  * @param mysqli $link Ресурс соединения
@@ -147,17 +147,48 @@ function get_user_projects($link, $user_id)
     return db_fetch_data($link, $sql, [$user_id]);
 }
 
+
 /**
- * Возвращает список задач пользователя по указанному проекту
+ * Возвращает список задач указанного пользователя
+ * в зависимости от переданных параметров
  *
  * @param mysqli $link Ресурс соединения
  * @param int $user_id ID пользователя
  * @param int $project_id ID проекта
+ * @param string $filter Название фильтра задач
+ * @param string $search Поисковый запрос
  *
  * @return array Список задач пользователя (ассоциативный массив)
  */
-function get_user_tasks_project($link, $user_id, $project_id)
+function get_user_tasks(mysqli $link, int $user_id, ?int $project_id = null, ?string $filter = null, ?string $search = null)
 {
+    $params = [$user_id, $user_id];
+    $where = 't.`user_id` = ?';
+
+    if (!is_null($project_id)) {
+        $params[] = $project_id;
+        $where .= ' AND p.`id` = ?';
+    }
+
+    if (!is_null($filter)) {
+        switch ($filter) {
+            case TASKS_FILTER_TODAY:
+                $where .= ' AND t.`dt_completion` = CURDATE()';
+                break;
+            case TASKS_FILTER_TOMORROW:
+                $where .= ' AND t.`dt_completion` = DATE_ADD(CURDATE(), INTERVAL 1 DAY)';
+                break;
+            case TASKS_FILTER_EXPIRED:
+                $where .= ' AND t.`dt_completion` < CURDATE()';
+                break;
+        }
+    }
+
+    if (!is_null($search)) {
+        $params[] = $search;
+        $where .= ' AND MATCH(t.`name`) AGAINST (?)';
+    }
+
     $sql = "
         SELECT
           t.`id`,
@@ -168,128 +199,11 @@ function get_user_tasks_project($link, $user_id, $project_id)
           p.`name` AS project_name
         FROM tasks t
         JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
-        WHERE t.`user_id` = ?
-        AND p.`id` = ?
+        WHERE {$where}
         ORDER BY t.`dt_add` DESC
     ";
 
-    return db_fetch_data($link, $sql, [$user_id, $user_id, $project_id]);
-}
-
-
-/**
- * Возвращает список всех задач переданного пользователя
- *
- * @param mysqli $link Ресурс соединения
- * @param int $user_id ID пользователя
- *
- * @return array Список задач пользователя (ассоциативный массив)
- */
-function get_user_tasks_all($link, $user_id)
-{
-    $sql = "
-        SELECT
-          t.`id`,
-          t.`is_completed`,
-          t.`name`,
-          t.`dt_completion` AS date_completion,
-          t.`file`,
-          p.`name` AS project_name
-        FROM tasks t
-        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
-        WHERE t.`user_id` = ?
-        ORDER BY t.`dt_add` DESC
-    ";
-
-    return db_fetch_data($link, $sql, [$user_id, $user_id]);
-}
-
-
-/**
- * Возвращает список задач переданного пользователя на сегодня
- *
- * @param mysqli $link Ресурс соединения
- * @param int $user_id ID пользователя
- *
- * @return array Список задач пользователя (ассоциативный массив)
- */
-function get_user_tasks_today(mysqli $link, int $user_id)
-{
-    $sql = "
-        SELECT
-          t.`id`,
-          t.`is_completed`,
-          t.`name`,
-          t.`dt_completion` AS date_completion,
-          t.`file`,
-          p.`name` AS project_name
-        FROM tasks t
-        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
-        WHERE t.`user_id` = ?
-        AND t.`dt_completion` = CURDATE()
-        ORDER BY t.`dt_add` DESC
-    ";
-
-    return db_fetch_data($link, $sql, [$user_id, $user_id]);
-}
-
-
-/**
- * Возвращает список задач переданного пользователя на завтра
- *
- * @param mysqli $link Ресурс соединения
- * @param int $user_id ID пользователя
- *
- * @return array Список задач пользователя (ассоциативный массив)
- */
-function get_user_tasks_tomorrow(mysqli $link, int $user_id)
-{
-    $sql = "
-        SELECT
-          t.`id`,
-          t.`is_completed`,
-          t.`name`,
-          t.`dt_completion` AS date_completion,
-          t.`file`,
-          p.`name` AS project_name
-        FROM tasks t
-        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
-        WHERE t.`user_id` = ?
-        AND t.`dt_completion` = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
-        ORDER BY t.`dt_add` DESC
-    ";
-
-    return db_fetch_data($link, $sql, [$user_id, $user_id]);
-}
-
-
-/**
- * Возвращает список задач переданного пользователя,
- * которые не были выполнены и у которых истёк срок выполнения
- *
- * @param mysqli $link Ресурс соединения
- * @param int $user_id ID пользователя
- *
- * @return array Список задач пользователя (ассоциативный массив)
- */
-function get_user_tasks_expired(mysqli $link, int $user_id)
-{
-    $sql = "
-        SELECT
-          t.`id`,
-          t.`is_completed`,
-          t.`name`,
-          t.`dt_completion` AS date_completion,
-          t.`file`,
-          p.`name` AS project_name
-        FROM tasks t
-        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
-        WHERE t.`user_id` = ?
-        AND t.`dt_completion` < CURDATE()
-        ORDER BY t.`dt_add` DESC
-    ";
-
-    return db_fetch_data($link, $sql, [$user_id, $user_id]);
+    return db_fetch_data($link, $sql, $params);
 }
 
 
@@ -430,35 +344,6 @@ function register_user(mysqli $link, array $new_user)
 
 
 /**
- * Возвращает список задач пользователя по указанному поисковому запросу
- *
- * @param mysqli $link Ресурс соединения
- * @param int $user_id ID пользователя
- * @param string $search Поисковый запрос (FULLTEXT)
- *
- * @return array Список найденных задач пользователя или пустой массив, если ничего не было найдено
- */
-function get_user_tasks_ft_search(mysqli $link, int $user_id, string $search)
-{
-    $sql = "
-        SELECT
-          t.`is_completed`,
-          t.`name`,
-          t.`dt_completion` AS date_completion,
-          t.`file`,
-          p.`name` AS project_name
-        FROM tasks t
-        JOIN projects p ON p.`id` = t.`project_id` AND p.`user_id` = ?
-        WHERE t.`user_id` = ?
-        AND MATCH(t.`name`) AGAINST(?)
-        ORDER BY t.`dt_add` DESC
-    ";
-
-    return db_fetch_data($link, $sql, [$user_id, $user_id, $search]);
-}
-
-
-/**
  * Изменяет состояние задачи (выполнена/не выполнена) на противоположное
  *
  * @param mysqli $link Ресурс соединения
@@ -476,4 +361,31 @@ function toggle_state_task(mysqli $link, int $task_id)
     ";
 
     db_fetch_data($link, $sql, [$task_id]);
+}
+
+
+/**
+ * Возвращает список пользователей, имеющих невыполненные задачи,
+ * срок выполнения которых истекает в текущий день
+ *
+ * @param mysqli $link Ресурс соединения
+ *
+ * @return array Список пользователей или пустой массив, если такие задачи отсутствуют
+ */
+function get_users_tasks_expired_today(mysqli $link)
+{
+    $sql = "
+        SELECT
+          u.`id`,
+          u.`email`,
+          u.`name`,
+          t.`dt_completion` AS date_completion
+        FROM users u
+        JOIN tasks t ON t.`user_id` = u.`id`
+        WHERE t.`is_completed` = 0
+        AND t.`dt_completion` = CURDATE()
+        GROUP BY u.`id`
+    ";
+
+    return db_fetch_data($link, $sql, []);
 }

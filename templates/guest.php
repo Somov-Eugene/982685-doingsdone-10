@@ -9,5 +9,5 @@
         </p>
     </div>
 
-    <a class="welcome__button button" href="register.php">Зарегистрироваться</a>
+    <a class="welcome__button button" href="/register.php">Зарегистрироваться</a>
 </section>

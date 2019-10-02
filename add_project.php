@@ -2,6 +2,10 @@
 require_once 'init.php';
 require_once 'get_user.php';
 
+if (empty($user)) {
+    header('Location: guest.php');
+}
+
 $page_title = "Дела в порядке - Добавление проекта";
 
 // получение списка проектов пользователя
@@ -66,7 +70,7 @@ $main_content = include_template(
 $layout_content = include_template(
     'layout.php',
     [
-	    'main_content' => $main_content,
+        'main_content' => $main_content,
         'page_title'=> $page_title,
         'user' => $user
     ]

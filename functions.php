@@ -1,4 +1,8 @@
 <?php
+define('TASKS_FILTER_TODAY', 'today');
+define('TASKS_FILTER_TOMORROW', 'tomorrow');
+define('TASKS_FILTER_EXPIRED', 'expired');
+
 /**
  * @deprecated Подсчитывает количество задач для переданного проекта
  *
@@ -34,12 +38,24 @@ function hours_left_deadline($date_completion)
         return null;
     }
 
-    $ts_end = strtotime($date_completion);
-    $ts_now = strtotime('now');
-    $ts_diff = $ts_end - $ts_now;
-    $hours_left = floor($ts_diff / 3600);
+    $task_finish = strtotime($date_completion);
+    $seconds_left = $task_finish - time();
+    $hours_left = floor($seconds_left/3600);
 
     return $hours_left;
+}
+
+
+/**
+ * Возвращает дату в европейском формате (dd.mm.yyyy)
+ *
+ * @param string $dt Преобразуемая дата
+ *
+ * @return string Отформатированная дата
+ */
+function euro_date($dt)
+{
+    return (empty($dt)) ? '' : date("d.m.Y", strtotime($dt));
 }
 
 
@@ -68,15 +84,18 @@ function additional_task_classes(array $task, bool $is_show_complete_tasks)
 
 
 /**
- * Формирует ссылку на проект с указанным ID
+ * Устанавливает в запросе параметр project_id с указанным ID проекта
  *
  * @param int $project_id ID проекта
  *
- * @return string Абсолютный путь к текущей странице с GET-запросом
+ * @return string Строка запроса
  */
-function get_link_to_project(int $project_id)
+function set_project_query(int $project_id): string
 {
-    return '/index.php?project_id=' . $project_id;
+    $param_name = 'project_id';
+    $param_value = (string)$project_id;
+
+    return modify_query($param_name, $param_value);
 }
 
 
@@ -91,6 +110,97 @@ function get_link_to_project(int $project_id)
 function mark_active_project(int $project_id)
 {
     return (isset($_GET['project_id']) and ((int)$_GET['project_id'] === $project_id)) ? 'main-navigation__list-item--active' : '';
+}
+
+
+/**
+ * Устанавливает или удаляет в запросе указанный параметр param_name
+ *
+ * @param array $query_data Обрабатываемый массив параметров
+ * @param string $param_name Имя параметра
+ * @param string $param_value Устанавливаемое значение (необязательный)
+ *
+ * @return string Строка запроса
+ */
+function modify_query_data(array $query_data, string $param_name, ?string $param_value = null): string
+{
+    // принудительно удаляем параметр search из массива (если он есть)
+    unset($query_data['search']);
+    // удаляем параметр, переданные в $param_name из массива
+    unset($query_data[$param_name]);
+
+    if (!is_null($param_value)) {
+        $query_data[$param_name] = $param_value;
+    }
+
+    return '?' . http_build_query($query_data);
+}
+
+/**
+ * Устанавливает или удаляет в GET-запросе указанный параметр param_name
+ *
+ * @param string $param_name Имя параметра
+ * @param string $param_value Устанавливаемое значение (необязательный)
+ *
+ * @return string Строка запроса
+ */
+function modify_query(string $param_name, ?string $param_value = null): string
+{
+    return modify_query_data($_GET, $param_name, $param_value);
+}
+
+/**
+ * Устанавливает значение параметра filter
+ *
+ * @param string $filter_value Устанавливаемое значение (необязательный)
+ *
+ * @return string Строка запроса
+ */
+function set_tasks_query_filter(?string $filter_value = null): string
+{
+    $param_name = 'filter';
+
+    return modify_query($param_name, $filter_value);
+}
+
+/**
+ * Получает параметры запроса для всех задач
+ *
+ * @return string Строка запроса
+ */
+function get_all_tasks_query_filter(): string
+{
+    return set_tasks_query_filter();
+}
+
+/**
+ * Получает параметры запроса для задач на сегодня
+ *
+ * @return string Строка запроса
+ */
+function get_tasks_filter_query_for_today(): string
+{
+    return set_tasks_query_filter(TASKS_FILTER_TODAY);
+}
+
+/**
+ * Получает параметры запроса для задач на завтра
+ *
+ * @return string Строка запроса
+ */
+function get_tasks_filter_query_for_tomorrow(): string
+{
+    return set_tasks_query_filter(TASKS_FILTER_TOMORROW);
+}
+
+/**
+ * Получает параметры запроса для просроченных задач
+ *
+ * @return string Строка запроса
+ */
+function get_tasks_filter_query_for_expired(): string
+{
+    return set_tasks_query_filter(TASKS_FILTER_EXPIRED);
 }
 
 
@@ -138,4 +248,36 @@ function show_completed()
     }
 
     return $result;
+}
+
+
+/**
+ * Отправляет письмо, используя библиотеку SwiftMailer
+ *
+ * @param string $email e-mail пользователя
+ * @param string $username Имя пользователя
+ * @param string $msg Текст сообщения
+ *
+ * @return void отсутствует
+ */
+function mail_sender(string $email, string $username, string $msg)
+{
+    // Create the Transport
+    $transport = (new Swift_SmtpTransport('phpdemo.ru', 25))
+        ->setUsername('keks@phpdemo.ru')
+        ->setPassword('htmlacademy')
+    ;
+
+    // Create the Mailer using your created Transport
+    $mailer = new Swift_Mailer($transport);
+
+    // Create a message
+    $message = (new Swift_Message('Уведомление от сервиса «Дела в порядке»'))
+        ->setFrom(['keks@phpdemo.ru' => 'DoingsDone'])
+        ->setTo([$email => $username])
+        ->setBody($msg, 'text/html')
+    ;
+
+    // Send the message
+    $mailer->send($message);
 }

@@ -1,7 +1,11 @@
 <?php
 require_once 'init.php';
+require_once 'get_user.php';
 
-session_start();
+// если пользователь уже был авторизован
+if (!empty($user)) {
+    header('Location: index.php');
+}
 
 $page_title = "Дела в порядке - Вход на сайт";
 
@@ -40,7 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // если форма заполнена без ошибок, то проверяем, имеется ли переданный e-mail в базе
     if (count($errors) === 0 and !is_exist_user($link, $user['email'])) {
-        $errors['email'] = 'Пользователь с таким e-mail не зарегистрирован';
+        // скрываем от злоумышленика тот факт, что пользователя с таким e-mail не существует
+        // во избежании получения им адресов существующих пользователей -- выводим одинаковые
+        // сообщения об ошибке как в случае ввода неправильного пароля, так и в случае ввода
+        // неправильного e-mail
+        $errors['password'] = 'Пароль или e-mail введены неправильно';
     }
 
     if (count($errors) === 0) {
@@ -53,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user_reg = $result[0];
 
             if (!password_verify($user['password'], $user_reg['password'])) {
-                $errors['password'] = 'Пароль введен неправильно';
+                $errors['password'] = 'Пароль или e-mail введены неправильно';
             }
         }
     }

@@ -2,89 +2,73 @@
 require_once 'init.php';
 require_once 'get_user.php';
 
+if (empty($user)) {
+    header('Location: guest.php');
+}
+
 $page_title = 'Дела в порядке';
+$project_id = null;
+$tasks = [];
 
 $search = [
     'text' => '',
     'is_search' => false
 ];
 
-if (empty($user['id'])) {
-    $main_content = include_template('guest.php');
-} else {
-    // показывать или нет выполненные задачи
-    $show_complete_tasks = show_completed();
+// показывать или нет выполненные задачи
+$show_complete_tasks = show_completed();
 
-    // получение списка проектов пользователя
-    $projects = get_user_projects($link, $user['id']);
+// получение списка проектов пользователя
+$projects = get_user_projects($link, $user['id']);
 
-    $tasks = [];
+// Если пользователь включил/выключил чекбокс на задаче
+if (isset($_GET['task_id']) && is_numeric($_GET['task_id'])) {
+    $task_id = (integer)$_GET['task_id'];
+    toggle_state_task($link, $task_id);
 
-    // Если пользователь включил/выключил чекбокс на задаче
-    if (isset($_GET['task_id']) && is_numeric($_GET['task_id'])) {
-        $task_id = (integer)$_GET['task_id'];
-        toggle_state_task($link, $task_id);
+    $redirect = 'Location: index.php';
 
-        header("Location: index.php");
-    }
+    $get_data = $_GET;
+    // удаляем параметр task_id
+    $query_data = modify_query_data($get_data, 'task_id');
 
-    // Если в GET-запросе присутствует параметр search,
-    // то в списке задач с помощью полнотекстового поиска ищутся задачи,
-    // соответствующие поисковому запросу.
-    // Если в GET-запросе имеется параметр project_id,
-    // то показываются только те задачи, которые относятся к данному проекту.
-    // Если присутствует параметр filter, то показывать только те задачи,
-    // которые соответствуют указанному фильтру.
-    // Иначе - показывать все задачи
-    if (isset($_GET['search'])) {
-        $search['text'] = strip_tags(trim($_GET['search']));
-
-        // если поисковый запрос не пустой и не менее трёх символов, то осуществляем поиск
-        if (!empty($search['text']) && strlen($search['text']) > 2){
-            $search['is_search'] = true;
-
-            $tasks = get_user_tasks_ft_search($link, $user['id'], $search['text']);
-        }
-    }
-    else if (isset($_GET['project_id'])) {
-        $project_id = (integer)$_GET['project_id'];
-
-        if (!is_exist_project($link, $user['id'], $project_id)) {
-            http_response_code(404);
-            exit;
-        }
-
-        $tasks = get_user_tasks_project($link, $user['id'], $project_id);
-    }
-    else if (isset($_GET['filter'])) {
-        $filter = $_GET['filter'];
-
-        switch ($filter) {
-            case 'today':
-                $tasks = get_user_tasks_today($link, $user['id']);
-                break;
-            case "tomorrow":
-                $tasks = get_user_tasks_tomorrow($link, $user['id']);
-                break;
-            case "expired":
-                $tasks = get_user_tasks_expired($link, $user['id']);
-                break;
-        }
-    }
-    else {
-        $tasks = get_user_tasks_all($link, $user['id']);
-    }
-
-    $main_content = include_template(
-        'main.php',
-        [
-            'tasks' => $tasks,
-            'projects' => $projects,
-            'is_show_complete_tasks' => boolval($show_complete_tasks),
-            'search' => $search
-        ]
-    );
+    $redirect .= (strlen($query_data) > 1) ? $query_data : '';
+    header($redirect);
 }
+
+if (isset($_GET['project_id'])) {
+    $project_id = (integer)$_GET['project_id'];
+
+    if (!is_exist_project($link, $user['id'], $project_id)) {
+        http_response_code(404);
+        exit;
+    }
+}
+
+if (isset($_GET['search'])) {
+    $search['text'] = strip_tags(trim($_GET['search']));
+
+    // если поисковый запрос не пустой и не менее трёх символов, то осуществляем поиск
+    if (!empty($search['text']) && strlen($search['text']) > 2) {
+        $search['is_search'] = true;
+
+        $tasks = get_user_tasks($link, $user['id'], $project_id, null, $search['text']);
+    }
+} else {
+    $filter = $_GET['filter'] ?? null;
+
+    $tasks = get_user_tasks($link, $user['id'], $project_id, $filter);
+}
+
+$main_content = include_template(
+    'main.php',
+    [
+        'tasks' => $tasks,
+        'projects' => $projects,
+        'is_show_complete_tasks' => boolval($show_complete_tasks),
+        'search' => $search
+    ]
+);
 
 $layout_content = include_template(
     'layout.php',

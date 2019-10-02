@@ -4,8 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <title><?= $page_title; ?></title>
+    <link rel="preload" href="../fonts/opensans-regular-webfont.woff2" as="font" crossorigin="anonymous">
+    <link rel="preload" href="../fonts/opensans-bold-webfont.woff2" as="font" crossorigin="anonymous">
     <link rel="stylesheet" href="../css/normalize.css">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body>
@@ -19,7 +22,7 @@
                 </a>
 
                 <div class="main-header__side">
-                    <a class="main-header__side-item button button--transparent" href="auth.php">Войти</a>
+                    <a class="main-header__side-item button button--transparent" href="/auth.php">Войти</a>
                 </div>
             </header>
 
