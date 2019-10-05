@@ -87,9 +87,9 @@ function db_fetch_data(mysqli $link, string $sql, array $data = []): array
  * @param string $sql SQL запрос с плейсхолдерами вместо значений
  * @param array $data Данные для вставки на место плейсхолдеров
  *
- * @return mixed ID добавленной записи или null, если произошла ошибка
+ * @return int ID добавленной записи или null, если произошла ошибка
  */
-function db_insert_data(mysqli $link, string $sql, array $data = [])
+function db_insert_data(mysqli $link, string $sql, array $data = []): int
 {
     $stmt = db_get_prepare_stmt($link, $sql, $data);
     $result = mysqli_stmt_execute($stmt);
@@ -236,9 +236,9 @@ function is_exist_project(mysqli $link, int $user_id, int $project_id): bool
  * @param mysqli $link Ресурс соединения
  * @param array $new_task Массив с параметрами задачи
  *
- * @return mixed ID добавленной записи или null, если произошла ошибка
+ * @return int ID добавленной записи или null, если произошла ошибка
  */
-function add_user_task(mysqli $link, array $new_task)
+function add_user_task(mysqli $link, array $new_task): int
 {
     $result = null;
 
@@ -270,9 +270,9 @@ function add_user_task(mysqli $link, array $new_task)
  * @param mysqli $link Ресурс соединения
  * @param array $new_project Массив с параметрами проекта
  *
- * @return mixed ID добавленной записи или null, если произошла ошибка
+ * @return int ID добавленной записи или null, если произошла ошибка
  */
-function add_user_project(mysqli $link, array $new_project)
+function add_user_project(mysqli $link, array $new_project): int
 {
     $result = null;
 
@@ -317,9 +317,9 @@ function is_exist_user(mysqli $link, string $email): bool
  * @param mysqli $link Ресурс соединения
  * @param array $new_user Массив с параметрами пользователя
  *
- * @return mixed ID добавленной записи или null, если произошла ошибка
+ * @return int ID добавленной записи или null, если произошла ошибка
  */
-function register_user(mysqli $link, array $new_user)
+function register_user(mysqli $link, array $new_user): int
 {
     $result = null;
 
