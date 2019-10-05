@@ -7,35 +7,13 @@ define('TASKS_FILTER_EXPIRED', 'expired');
 define('PASSWORD_HASH_ALGO', PASSWORD_DEFAULT);
 
 /**
- * @deprecated Подсчитывает количество задач для переданного проекта
- *
- * @param array $tasks_list Список задач
- * @param string $project_name Название проекта
- *
- * @return int Количество задач проекта
- */
-function number_project_tasks(array $tasks_list, string $project_name): int
-{
-    $task_counter = 0;
-
-    foreach ($tasks_list as $task) {
-        if ($task['project_name'] === $project_name) {
-            $task_counter++;
-        }
-    }
-
-    return $task_counter;
-}
-
-
-/**
  * Подсчитывает количество часов до выполнения задачи
  *
- * @param date $date_completion Требуемая дата выполнения задачи или null, если задача бессрочная
+ * @param string $date_completion Требуемая дата выполнения задачи или null, если задача бессрочная
  *
- * @return mixed Количество оставшихся часов или null, если задача бессрочная
+ * @return int Количество оставшихся часов или null, если задача бессрочная
  */
-function hours_left_deadline(date $date_completion)
+function hours_left_deadline(?string $date_completion = null): int
 {
     if (is_null($date_completion)) {
         return null;
@@ -43,7 +21,7 @@ function hours_left_deadline(date $date_completion)
 
     $task_finish = strtotime($date_completion);
     $seconds_left = $task_finish - time();
-    $hours_left = floor($seconds_left/3600);
+    $hours_left = (int)floor($seconds_left/3600);
 
     return $hours_left;
 }
@@ -52,13 +30,13 @@ function hours_left_deadline(date $date_completion)
 /**
  * Возвращает дату в европейском формате (dd.mm.yyyy)
  *
- * @param string $dt Преобразуемая дата
+ * @param string $date Преобразуемая дата
  *
  * @return string Отформатированная дата
  */
-function euro_date(string $dt): string
+function euro_date(string $date): string
 {
-    return (empty($dt)) ? '' : date("d.m.Y", strtotime($dt));
+    return (empty($date)) ? '' : date("d.m.Y", strtotime($date));
 }
 
 
