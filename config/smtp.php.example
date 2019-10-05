@@ -1,0 +1,7 @@
+<?php
+$smtp_host = 'smtp_host';
+$smtp_port = 25;
+$smtp_user = 'smtp_user';
+$smtp_password = 'smtp_password';
+
+$from = 'e-mail@sender';

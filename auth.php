@@ -55,23 +55,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // находим пользователя с переданным e-mail среди существующих в БД
         $result = get_user_by_email($link, $user['email']);
 
-        if (empty($result)) {
-            $errors['password'] = 'Ошибка получения пароля';
+        // если произошла ошибка получения данных из БД или пользователь ввёл неправильный пароль,
+        // то выводим сообщение об ошибке
+        if (empty($result) || !password_verify($user['password'], $result[0]['password'])) {
+            $errors['password'] = 'Пароль или e-mail введены неправильно';
         } else {
-            $user_reg = $result[0];
+            // иначе - сохраняем данные пользователя в сессиии
+            $_SESSION['user'] = $result[0];
 
-            if (!password_verify($user['password'], $user_reg['password'])) {
-                $errors['password'] = 'Пароль или e-mail введены неправильно';
-            }
+            // и переадресовываем его на главную страницу
+            header('Location: index.php');
         }
-    }
-
-    if (count($errors) === 0) {
-        // сохраняем данные пользователя в сессиии
-        $_SESSION['user'] = $user_reg;
-
-        // и переадресовываем его на главную страницу
-        header("Location: index.php");
     }
 }
 
@@ -87,7 +81,7 @@ $layout_content = include_template(
     'layout-register.php',
     [
         'main_content' => $main_content,
-        'page_title'=> $page_title
+        'page_title' => $page_title
     ]
 );
 

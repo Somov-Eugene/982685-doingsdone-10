@@ -1,19 +1,23 @@
 <?php
 require_once 'init.php';
 
+$current_date = date('d.m.Y');
+
+// получаем список пользователей, имеющих задачи, срок выполнения которых истекает сегодня
 $send_users = get_users_tasks_expired_today($link);
 
 foreach ($send_users as $key => $recipient) {
-    $msg_html = '<p><strong>Уважаемый(-ая) ' . $recipient['name'] . '!</strong></p>';
-    $msg_html .= '<p>На ' . euro_date($recipient['date_completion']) . ' у Вас ';
-
-    $tasks = get_user_tasks($link, $recipient['id'], null, TASKS_FILTER_TODAY);
+    // получаем список незавершенных задач на сегодня
+    $tasks = get_tasks_expired_today_by_user($link, $recipient['id']);
     $tasks_name = array_column($tasks, 'name');
+    $tasks_list = '«' . implode('», «', $tasks_name) . '»';
 
-    $msg_html .= (count($tasks_name) === 1) ?
-        'запланирована задача «' . $tasks_name[0] :
-        'запланированы задачи: «'. implode('», «', $tasks_name);
-    $msg_html .= '»</p>';
+    $msg_html = "
+        <p>
+            <strong>Уважаемый(-ая) {$recipient['name']}!</strong>
+        </p>
+        <p>На {$current_date} у Вас запланированы следующие задачи: {$tasks_list}</p>
+    ";
 
-    mail_sender($recipient['email'], $recipient['name'], $msg_html);
+    mail_sender($mailer, $from, $recipient['email'], $recipient['name'], $msg_html);
 }

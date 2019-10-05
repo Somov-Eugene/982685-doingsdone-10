@@ -3,36 +3,17 @@ define('TASKS_FILTER_TODAY', 'today');
 define('TASKS_FILTER_TOMORROW', 'tomorrow');
 define('TASKS_FILTER_EXPIRED', 'expired');
 
-/**
- * @deprecated Подсчитывает количество задач для переданного проекта
- *
- * @param array $tasks_list Список задач
- * @param string $project_name Название проекта
- *
- * @return int Количество задач проекта
- */
-function number_project_tasks(array $tasks_list, string $project_name)
-{
-    $task_counter = 0;
-
-    foreach ($tasks_list as $task) {
-        if ($task['project_name'] === $project_name) {
-            $task_counter++;
-        }
-    }
-
-    return $task_counter;
-}
-
+// используемый алгоритм хеширования пароля
+define('PASSWORD_HASH_ALGO', PASSWORD_DEFAULT);
 
 /**
  * Подсчитывает количество часов до выполнения задачи
  *
- * @param date $date_completion Требуемая дата выполнения задачи или null, если задача бессрочная
+ * @param string $date_completion Требуемая дата выполнения задачи или null, если задача бессрочная
  *
  * @return int Количество оставшихся часов или null, если задача бессрочная
  */
-function hours_left_deadline($date_completion)
+function hours_left_deadline(?string $date_completion = null): int
 {
     if (is_null($date_completion)) {
         return null;
@@ -40,7 +21,7 @@ function hours_left_deadline($date_completion)
 
     $task_finish = strtotime($date_completion);
     $seconds_left = $task_finish - time();
-    $hours_left = floor($seconds_left/3600);
+    $hours_left = (int)floor($seconds_left/3600);
 
     return $hours_left;
 }
@@ -49,25 +30,26 @@ function hours_left_deadline($date_completion)
 /**
  * Возвращает дату в европейском формате (dd.mm.yyyy)
  *
- * @param string $dt Преобразуемая дата
+ * @param string $date Преобразуемая дата
  *
  * @return string Отформатированная дата
  */
-function euro_date($dt)
+function euro_date(string $date): string
 {
-    return (empty($dt)) ? '' : date("d.m.Y", strtotime($dt));
+    return (empty($date)) ? '' : date("d.m.Y", strtotime($date));
 }
 
 
 /**
- * Добавляет дополнительные классы для задач, у которых истекает срок выполнения и для выполненных задач
+ * Добавляет дополнительные классы для задач,
+ * у которых истекает срок выполнения и для выполненных задач
  *
- * @param array $tasks_list Список задач
+ * @param array $task Список задач
  * @param bool $is_show_complete_tasks Признак, показывать ли выполненные задачи
  *
  * @return string Название класса
  */
-function additional_task_classes(array $task, bool $is_show_complete_tasks)
+function additional_task_classes(array $task, bool $is_show_complete_tasks): string
 {
     if (boolval($task['is_completed']) and $is_show_complete_tasks) {
         return 'task--completed';
@@ -107,7 +89,7 @@ function set_project_query(int $project_id): string
  *
  * @return string Название класса
  */
-function mark_active_project(int $project_id)
+function mark_active_project(int $project_id): string
 {
     return (isset($_GET['project_id']) and ((int)$_GET['project_id'] === $project_id)) ? 'main-navigation__list-item--active' : '';
 }
@@ -212,7 +194,7 @@ function get_tasks_filter_query_for_expired(): string
  *
  * @return string Название класса
  */
-function mark_active_exist_filter_tasks(string $filter_name)
+function mark_active_exist_filter_tasks(string $filter_name): string
 {
     return (isset($_GET['filter']) && $_GET['filter'] === $filter_name) ? 'tasks-switch__item--active' : '';
 }
@@ -224,7 +206,7 @@ function mark_active_exist_filter_tasks(string $filter_name)
  *
  * @return string Название класса
  */
-function mark_active_no_filter_tasks()
+function mark_active_no_filter_tasks(): string
 {
     return (!isset($_GET['filter'])) ? 'tasks-switch__item--active' : '';
 }
@@ -235,7 +217,7 @@ function mark_active_no_filter_tasks()
  *
  * @return int Значение 1 - показывать, 0 - не показывать
  */
-function show_completed()
+function show_completed(): int
 {
     $result = 0;
 
@@ -254,27 +236,20 @@ function show_completed()
 /**
  * Отправляет письмо, используя библиотеку SwiftMailer
  *
- * @param string $email e-mail пользователя
- * @param string $username Имя пользователя
+ * @param Swift_Mailer $mailer SwiftMailer
+ * @param string $from e-mail отправителя
+ * @param string $to e-mail получателя
+ * @param string $name Имя получателя
  * @param string $msg Текст сообщения
  *
  * @return void отсутствует
  */
-function mail_sender(string $email, string $username, string $msg)
+function mail_sender(Swift_Mailer $mailer, string $from, string $to, string $name, string $msg): void
 {
-    // Create the Transport
-    $transport = (new Swift_SmtpTransport('phpdemo.ru', 25))
-        ->setUsername('keks@phpdemo.ru')
-        ->setPassword('htmlacademy')
-    ;
-
-    // Create the Mailer using your created Transport
-    $mailer = new Swift_Mailer($transport);
-
     // Create a message
     $message = (new Swift_Message('Уведомление от сервиса «Дела в порядке»'))
-        ->setFrom(['keks@phpdemo.ru' => 'DoingsDone'])
-        ->setTo([$email => $username])
+        ->setFrom([$from => 'DoingsDone'])
+        ->setTo([$to => $name])
         ->setBody($msg, 'text/html')
     ;
 

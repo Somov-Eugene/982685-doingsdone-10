@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (count($errors) === 0) {
         // получаем hash от переданного пароля
-        $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
+        $user['password'] = password_hash($user['password'], PASSWORD_HASH_ALGO);
 
         // добавляем нового пользователя в БД
         $user_id = register_user($link, $user);
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user'] = $user;
 
             // и переадресовываем его на главную страницу
-            header("Location: index.php");
+            header('Location: index.php');
         }
     }
 }
@@ -83,7 +83,7 @@ $layout_content = include_template(
     'layout-register.php',
     [
         'main_content' => $main_content,
-        'page_title'=> $page_title
+        'page_title' => $page_title
     ]
 );
 
