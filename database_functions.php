@@ -8,7 +8,7 @@
  *
  * @return mysqli_stmt Подготовленное выражение
  */
-function db_get_prepare_stmt($link, $sql, $data = [])
+function db_get_prepare_stmt(mysqli $link, string $sql, array $data = []): mysqli_stmt
 {
     $stmt = mysqli_prepare($link, $sql);
 
@@ -64,7 +64,7 @@ function db_get_prepare_stmt($link, $sql, $data = [])
  *
  * @return array Результат выполнения запроса в виде ассоциативного массива или пустой массив в случае ошибки
  */
-function db_fetch_data($link, $sql, $data = [])
+function db_fetch_data(mysqli $link, string $sql, array $data = []): array
 {
     $result = [];
 
@@ -89,7 +89,7 @@ function db_fetch_data($link, $sql, $data = [])
  *
  * @return mixed ID добавленной записи или null, если произошла ошибка
  */
-function db_insert_data($link, $sql, $data = [])
+function db_insert_data(mysqli $link, string $sql, array $data = [])
 {
     $stmt = db_get_prepare_stmt($link, $sql, $data);
     $result = mysqli_stmt_execute($stmt);
@@ -103,14 +103,14 @@ function db_insert_data($link, $sql, $data = [])
 
 
 /**
- * Возвращает учетные данные пользователя c указанным e-mail
+ * Возвращает учетные данные пользователя
  *
  * @param mysqli $link Ресурс соединения
- * @param string $user_name e-mail пользователя
+ * @param string $email e-mail пользователя
  *
  * @return array Данные пользователя или пустой массив, если такой пользователь не найден
  */
-function get_user_by_email($link, $email)
+function get_user_by_email(mysqli $link, string $email): array
 {
     $sql = "
         SELECT *
@@ -124,14 +124,14 @@ function get_user_by_email($link, $email)
 
 /**
  * Возвращает список проектов указанного пользователя
- * и количество задач в каждом из проектов
+ * и количество незавершенных задач в каждом из проектов
  *
  * @param mysqli $link Ресурс соединения
  * @param int $user_id ID пользователя
  *
  * @return array Список проектов пользователя (ассоциативный массив)
  */
-function get_user_projects($link, $user_id)
+function get_user_projects(mysqli $link, int $user_id): array
 {
     $sql = "
         SELECT
@@ -139,7 +139,7 @@ function get_user_projects($link, $user_id)
           p.`name`,
           COUNT(t.`id`) AS cnt_tasks
         FROM projects p
-        LEFT JOIN tasks t ON t.`project_id` = p.`id`
+        LEFT JOIN tasks t ON t.`project_id` = p.`id` AND t.`is_completed` = 0
         WHERE p.`user_id` = ?
         GROUP BY p.`id`
     ";
@@ -160,7 +160,7 @@ function get_user_projects($link, $user_id)
  *
  * @return array Список задач пользователя (ассоциативный массив)
  */
-function get_user_tasks(mysqli $link, int $user_id, ?int $project_id = null, ?string $filter = null, ?string $search = null)
+function get_user_tasks(mysqli $link, int $user_id, ?int $project_id = null, ?string $filter = null, ?string $search = null): array
 {
     $params = [$user_id, $user_id];
     $where = 't.`user_id` = ?';
@@ -179,7 +179,7 @@ function get_user_tasks(mysqli $link, int $user_id, ?int $project_id = null, ?st
                 $where .= ' AND t.`dt_completion` = DATE_ADD(CURDATE(), INTERVAL 1 DAY)';
                 break;
             case TASKS_FILTER_EXPIRED:
-                $where .= ' AND t.`dt_completion` < CURDATE()';
+                $where .= ' AND t.`dt_completion` < CURDATE() AND t.`is_completed` = 0';
                 break;
         }
     }
@@ -214,9 +214,9 @@ function get_user_tasks(mysqli $link, int $user_id, ?int $project_id = null, ?st
  * @param int $user_id ID пользователя
  * @param int $project_id ID проверяемого проекта
  *
- * @return boolean Логическое значение (true/false)
+ * @return bool Логическое значение (true/false)
  */
-function is_exist_project(mysqli $link, int $user_id, int $project_id)
+function is_exist_project(mysqli $link, int $user_id, int $project_id): bool
 {
     $sql = "
         SELECT
@@ -301,9 +301,9 @@ function add_user_project(mysqli $link, array $new_project)
  * @param mysqli $link Ресурс соединения
  * @param string $email Проверяемый e-mail
  *
- * @return boolean Логическое значение (true/false)
+ * @return bool Логическое значение (true/false)
  */
-function is_exist_user(mysqli $link, string $email)
+function is_exist_user(mysqli $link, string $email): bool
 {
     $result = get_user_by_email($link, $email);
 
@@ -351,7 +351,7 @@ function register_user(mysqli $link, array $new_user)
  *
  * @return void Отсутствует
  */
-function toggle_state_task(mysqli $link, int $task_id)
+function toggle_state_task(mysqli $link, int $task_id): void
 {
 
     $sql = "
@@ -372,14 +372,13 @@ function toggle_state_task(mysqli $link, int $task_id)
  *
  * @return array Список пользователей или пустой массив, если такие задачи отсутствуют
  */
-function get_users_tasks_expired_today(mysqli $link)
+function get_users_tasks_expired_today(mysqli $link): array
 {
     $sql = "
         SELECT
           u.`id`,
           u.`email`,
-          u.`name`,
-          t.`dt_completion` AS date_completion
+          u.`name`
         FROM users u
         JOIN tasks t ON t.`user_id` = u.`id`
         WHERE t.`is_completed` = 0
@@ -388,4 +387,29 @@ function get_users_tasks_expired_today(mysqli $link)
     ";
 
     return db_fetch_data($link, $sql, []);
+}
+
+
+/**
+ * Возвращает для указанного пользователя список невыполненных задач,
+ * срок выполнения которых истекает сегодня
+ *
+ * @param mysqli $link Ресурс соединения
+ * @param int $user_id ID пользователя
+ *
+ * @return array Список названий задач пользователя
+ */
+function get_tasks_expired_today_by_user(mysqli $link, int $user_id): array
+{
+    $sql = "
+        SELECT
+          t.`name`
+        FROM tasks t
+        WHERE t.`user_id` = ?
+        AND t.`is_completed` = 0
+        AND t.`dt_completion` = CURDATE()
+        ORDER BY t.`dt_add` DESC
+    ";
+
+    return db_fetch_data($link, $sql, [$user_id]);
 }
