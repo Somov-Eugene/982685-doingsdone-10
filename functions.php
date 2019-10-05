@@ -3,6 +3,9 @@ define('TASKS_FILTER_TODAY', 'today');
 define('TASKS_FILTER_TOMORROW', 'tomorrow');
 define('TASKS_FILTER_EXPIRED', 'expired');
 
+// используемый алгоритм хеширования пароля
+define('PASSWORD_HASH_ALGO', PASSWORD_DEFAULT);
+
 /**
  * @deprecated Подсчитывает количество задач для переданного проекта
  *
@@ -11,7 +14,7 @@ define('TASKS_FILTER_EXPIRED', 'expired');
  *
  * @return int Количество задач проекта
  */
-function number_project_tasks(array $tasks_list, string $project_name)
+function number_project_tasks(array $tasks_list, string $project_name): int
 {
     $task_counter = 0;
 
@@ -30,9 +33,9 @@ function number_project_tasks(array $tasks_list, string $project_name)
  *
  * @param date $date_completion Требуемая дата выполнения задачи или null, если задача бессрочная
  *
- * @return int Количество оставшихся часов или null, если задача бессрочная
+ * @return mixed Количество оставшихся часов или null, если задача бессрочная
  */
-function hours_left_deadline($date_completion)
+function hours_left_deadline(date $date_completion)
 {
     if (is_null($date_completion)) {
         return null;
@@ -53,21 +56,22 @@ function hours_left_deadline($date_completion)
  *
  * @return string Отформатированная дата
  */
-function euro_date($dt)
+function euro_date(string $dt): string
 {
     return (empty($dt)) ? '' : date("d.m.Y", strtotime($dt));
 }
 
 
 /**
- * Добавляет дополнительные классы для задач, у которых истекает срок выполнения и для выполненных задач
+ * Добавляет дополнительные классы для задач,
+ * у которых истекает срок выполнения и для выполненных задач
  *
- * @param array $tasks_list Список задач
+ * @param array $task Список задач
  * @param bool $is_show_complete_tasks Признак, показывать ли выполненные задачи
  *
  * @return string Название класса
  */
-function additional_task_classes(array $task, bool $is_show_complete_tasks)
+function additional_task_classes(array $task, bool $is_show_complete_tasks): string
 {
     if (boolval($task['is_completed']) and $is_show_complete_tasks) {
         return 'task--completed';
@@ -107,7 +111,7 @@ function set_project_query(int $project_id): string
  *
  * @return string Название класса
  */
-function mark_active_project(int $project_id)
+function mark_active_project(int $project_id): string
 {
     return (isset($_GET['project_id']) and ((int)$_GET['project_id'] === $project_id)) ? 'main-navigation__list-item--active' : '';
 }
@@ -212,7 +216,7 @@ function get_tasks_filter_query_for_expired(): string
  *
  * @return string Название класса
  */
-function mark_active_exist_filter_tasks(string $filter_name)
+function mark_active_exist_filter_tasks(string $filter_name): string
 {
     return (isset($_GET['filter']) && $_GET['filter'] === $filter_name) ? 'tasks-switch__item--active' : '';
 }
@@ -224,7 +228,7 @@ function mark_active_exist_filter_tasks(string $filter_name)
  *
  * @return string Название класса
  */
-function mark_active_no_filter_tasks()
+function mark_active_no_filter_tasks(): string
 {
     return (!isset($_GET['filter'])) ? 'tasks-switch__item--active' : '';
 }
@@ -235,7 +239,7 @@ function mark_active_no_filter_tasks()
  *
  * @return int Значение 1 - показывать, 0 - не показывать
  */
-function show_completed()
+function show_completed(): int
 {
     $result = 0;
 
@@ -262,7 +266,7 @@ function show_completed()
  *
  * @return void отсутствует
  */
-function mail_sender(Swift_Mailer $mailer, string $from, string $to, string $name, string $msg)
+function mail_sender(Swift_Mailer $mailer, string $from, string $to, string $name, string $msg): void
 {
     // Create a message
     $message = (new Swift_Message('Уведомление от сервиса «Дела в порядке»'))
