@@ -13,7 +13,7 @@ define('PASSWORD_HASH_ALGO', PASSWORD_DEFAULT);
  *
  * @return int Количество оставшихся часов или null, если задача бессрочная
  */
-function hours_left_deadline(?string $date_completion = null): int
+function hours_left_deadline(?string $date_completion = null)
 {
     if (is_null($date_completion)) {
         return null;

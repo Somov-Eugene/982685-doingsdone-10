@@ -89,7 +89,7 @@ function db_fetch_data(mysqli $link, string $sql, array $data = []): array
  *
  * @return int ID добавленной записи или null, если произошла ошибка
  */
-function db_insert_data(mysqli $link, string $sql, array $data = []): int
+function db_insert_data(mysqli $link, string $sql, array $data = [])
 {
     $stmt = db_get_prepare_stmt($link, $sql, $data);
     $result = mysqli_stmt_execute($stmt);
@@ -238,7 +238,7 @@ function is_exist_project(mysqli $link, int $user_id, int $project_id): bool
  *
  * @return int ID добавленной записи или null, если произошла ошибка
  */
-function add_user_task(mysqli $link, array $new_task): int
+function add_user_task(mysqli $link, array $new_task)
 {
     $result = null;
 
@@ -272,7 +272,7 @@ function add_user_task(mysqli $link, array $new_task): int
  *
  * @return int ID добавленной записи или null, если произошла ошибка
  */
-function add_user_project(mysqli $link, array $new_project): int
+function add_user_project(mysqli $link, array $new_project)
 {
     $result = null;
 
@@ -319,7 +319,7 @@ function is_exist_user(mysqli $link, string $email): bool
  *
  * @return int ID добавленной записи или null, если произошла ошибка
  */
-function register_user(mysqli $link, array $new_user): int
+function register_user(mysqli $link, array $new_user)
 {
     $result = null;
 
